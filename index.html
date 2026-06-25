@@ -139,6 +139,17 @@
     justify-content: flex-end;
   }
 
+  .admin-actions {
+    display: none;
+    gap: 9px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  body.team-mode .admin-actions {
+    display: flex;
+  }
+
   .btn {
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -364,6 +375,7 @@
   }
 
   .s-approved { color: var(--green-soft); background: rgba(0,224,0,.08); }
+  .s-published { color: #9dffb0; background: rgba(0,224,0,.12); }
   .s-production { color: var(--cyan); background: rgba(8,217,255,.08); }
   .s-review { color: var(--warn); background: rgba(255,209,102,.09); }
   .s-blocked { color: var(--danger); background: rgba(255,92,122,.09); }
@@ -437,16 +449,70 @@
     background: rgba(8,217,255,.06);
   }
 
+  tr.is-overdue td {
+    background: rgba(255,92,122,.055);
+  }
+
+  tr.is-overdue td:first-child {
+    box-shadow: inset 3px 0 0 var(--danger);
+  }
+
   /* Agenda: colunas curtas não quebram; colunas de texto podem quebrar */
-  #agenda table { min-width: 1060px; }
+  #agenda table { min-width: 1180px; }
   #agenda td:nth-child(1),
   #agenda td:nth-child(2),
   #agenda td:nth-child(6),
   #agenda td:nth-child(7),
-  #agenda td:nth-child(9) { white-space: nowrap; }
+  #agenda td:nth-child(9),
+  #agenda td:nth-child(10) { white-space: nowrap; }
   #agenda td:nth-child(3) { min-width: 200px; }
   #agenda td:nth-child(5) { min-width: 220px; }
   #agenda td:nth-child(8) { min-width: 240px; }
+
+  .quick-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .quick-filters button {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: rgba(255,255,255,.035);
+    padding: 8px 11px;
+    font-size: 13px;
+  }
+
+  .quick-filters button.active {
+    color: var(--text);
+    border-color: rgba(85,255,103,.45);
+    background: rgba(0,224,0,.10);
+  }
+
+  .link-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .mini-link {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(8,217,255,.28);
+    border-radius: 999px;
+    color: var(--cyan);
+    background: rgba(8,217,255,.06);
+    padding: 5px 8px;
+    font-size: 12px;
+    text-decoration: none;
+  }
+
+  .mini-link:hover {
+    border-color: rgba(8,217,255,.62);
+    text-decoration: none;
+  }
 
   .trilha {
     display: inline-block;
@@ -737,6 +803,68 @@
     font: 12px/1.5 Consolas, "Courier New", monospace;
   }
 
+  @media (max-width: 720px) {
+    .table-wrap {
+      border: 0;
+      background: transparent;
+      overflow: visible;
+    }
+
+    table {
+      min-width: 0;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tbody,
+    tr,
+    td {
+      display: block;
+      width: 100%;
+    }
+
+    tr {
+      margin: 0 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(13,10,30,.72);
+      overflow: hidden;
+    }
+
+    td {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    #agenda tr.week-row,
+    #agenda tr.week-backlog {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    #agenda tr.week-row td {
+      display: block;
+      border-radius: 12px;
+    }
+
+    #agenda tr.week-row td::before {
+      display: none;
+    }
+  }
+
   @media (max-width: 900px) {
     .topbar,
     .brand {
@@ -792,10 +920,13 @@
     </div>
     <div class="top-actions">
       <span class="sync-status offline" id="syncStatus">Modo local</span>
-      <button class="btn ghost" id="supabaseBtn">Supabase</button>
-      <button class="btn primary" id="editToggle">Ativar edição</button>
-      <button class="btn ghost edit-only" id="exportBtn">Exportar dados</button>
-      <button class="btn ghost edit-only" id="importBtn">Importar JSON</button>
+      <button class="btn ghost" type="button" id="teamModeToggle">Área da equipe</button>
+      <div class="admin-actions">
+        <button class="btn ghost" id="supabaseBtn">Supabase</button>
+        <button class="btn primary" id="editToggle">Ativar edição</button>
+        <button class="btn ghost edit-only" id="exportBtn">Exportar dados</button>
+        <button class="btn ghost edit-only" id="importBtn">Importar JSON</button>
+      </div>
       <input id="importFile" type="file" accept="application/json" hidden>
     </div>
   </header>
@@ -881,6 +1012,8 @@
         <select id="filterTrilha">
           <option value="Todas">Todas as trilhas</option>
           <option>Institucional</option>
+          <option>Henrique</option>
+          <option>Nathan</option>
           <option>Ananda</option>
           <option>Mafê</option>
           <option>Larumy</option>
@@ -889,6 +1022,7 @@
         <select id="filterStatus">
           <option value="Todos">Todos os status</option>
           <option>Aprovado</option>
+          <option>Publicado</option>
           <option>Em produção</option>
           <option>Em revisão</option>
           <option>Bloqueado</option>
@@ -896,6 +1030,14 @@
         </select>
         <input id="filterSearch" type="search" placeholder="Buscar conteúdo...">
         <span class="count" id="agendaCount"></span>
+      </div>
+      <div class="quick-filters" aria-label="Atalhos de trilha">
+        <button type="button" data-trilha-quick="Todas">Todos</button>
+        <button type="button" data-trilha-quick="Henrique">Minha trilha: Henrique</button>
+        <button type="button" data-trilha-quick="Nathan">Minha trilha: Nathan</button>
+        <button type="button" data-trilha-quick="Ananda">Minha trilha: Ananda</button>
+        <button type="button" data-trilha-quick="Mafê">Minha trilha: Mafê</button>
+        <button type="button" data-trilha-quick="Larumy">Minha trilha: Larumy</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -909,6 +1051,7 @@
               <th>Responsável</th>
               <th>Status</th>
               <th>Observação</th>
+              <th>Refs / upload</th>
               <th class="edit-only">Ações</th>
             </tr>
           </thead>
@@ -1075,6 +1218,7 @@ const STORAGE_KEY = "gogame-dashboard-operacional-v2";
 const SUPABASE_SETTINGS_KEY = "gogame-supabase-settings-v1";
 const STATUS_CLASS = {
   "Aprovado": "s-approved",
+  "Publicado": "s-published",
   "Em produção": "s-production",
   "Em revisão": "s-review",
   "Bloqueado": "s-blocked",
@@ -1194,6 +1338,7 @@ let remoteReady = false;
 let remoteRowId = null;
 let realtimeChannel = null;
 let agendaFilter = { trilha: "Todas", status: "Todos", q: "" };
+let teamMode = false;
 
 function loadLocalData() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -1339,6 +1484,21 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function normalizeUrl(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  return /^https?:\/\//i.test(text) ? text : `https://${text}`;
+}
+
+function formatTextLinks(value) {
+  const escaped = escapeHtml(value);
+  return escaped.replace(/(https?:\/\/[^\s<]+|(?:www\.)?[a-z0-9.-]+\.[a-z]{2,}\/[^\s<]*)/gi, match => {
+    const clean = match.replace(/[),.;]+$/g, "");
+    const tail = match.slice(clean.length);
+    return `<a class="file-link" href="${escapeHtml(normalizeUrl(clean))}" target="_blank" rel="noopener">${escapeHtml(clean)}</a>${escapeHtml(tail)}`;
+  });
+}
+
 function dateToNum(value) {
   const match = String(value).match(/(\d{1,2})\/(\d{1,2})/);
   return match ? Number(match[2]) * 100 + Number(match[1]) : 9999;
@@ -1350,7 +1510,7 @@ function todayNum() {
 }
 
 function nextAgendaItem() {
-  const sorted = [...data.agenda].sort((a, b) => dateToNum(a.date) - dateToNum(b.date));
+  const sorted = data.agenda.filter(isOpenItem).sort((a, b) => dateToNum(a.date) - dateToNum(b.date));
   const today = todayNum();
   return sorted.find(item => dateToNum(item.date) >= today) || sorted[sorted.length - 1] || null;
 }
@@ -1394,14 +1554,19 @@ function todayDate() {
 }
 
 function daysFromToday(item) {
-  const d = parseBRDate(item.date);
+  const d = parseBRDate(item.date || item.due);
   if (!d) return null;
   d.setHours(0, 0, 0, 0);
   return Math.round((d.getTime() - todayDate().getTime()) / 86400000);
 }
 
 function isOpenItem(item) {
-  return item.status !== "Aprovado";
+  return item.status !== "Aprovado" && item.status !== "Publicado";
+}
+
+function isOverdueItem(item) {
+  const days = daysFromToday(item);
+  return days !== null && days < 0 && isOpenItem(item);
 }
 
 function agendaLine(item) {
@@ -1558,13 +1723,13 @@ function renderOverview() {
 
 function renderDeliveries() {
   document.getElementById("deliveriesTable").innerHTML = data.deliveries.map((item, index) => `
-    <tr>
-      <td class="strong">${escapeHtml(item.name)}</td>
-      <td>${escapeHtml(item.owner)}</td>
-      <td>${escapeHtml(item.due)}</td>
-      <td>${statusPill(item.status)}</td>
-      <td>${escapeHtml(item.next)}</td>
-      <td class="edit-only"><button class="btn ghost" data-edit="delivery" data-index="${index}">Editar</button></td>
+    <tr class="${isOverdueItem(item) ? "is-overdue" : ""}">
+      <td data-label="Entrega" class="strong">${escapeHtml(item.name)}</td>
+      <td data-label="Responsável">${escapeHtml(item.owner)}</td>
+      <td data-label="Prazo">${escapeHtml(item.due)}</td>
+      <td data-label="Status">${statusPill(item.status)}</td>
+      <td data-label="Decisão">${formatTextLinks(item.next)}</td>
+      <td data-label="Ações" class="edit-only"><button class="btn ghost" data-edit="delivery" data-index="${index}">Editar</button></td>
     </tr>
   `).join("");
 }
@@ -1583,26 +1748,48 @@ function agendaRowHtml(item) {
   const index = data.agenda.indexOf(item);
   const trilha = item.trilha || "Institucional";
   return `
-    <tr>
-      <td class="strong">${escapeHtml(item.date)}</td>
-      <td><span class="trilha ${trilhaClass(trilha)}">${escapeHtml(trilha)}</span></td>
-      <td>${escapeHtml(item.content)}</td>
-      <td>${escapeHtml(item.channel)}</td>
-      <td>${escapeHtml(item.goal)}</td>
-      <td>${escapeHtml(item.owner || "")}</td>
-      <td>${statusPill(item.status)}</td>
-      <td>${escapeHtml(item.note)}</td>
-      <td class="edit-only"><button class="btn ghost" data-edit="agenda" data-index="${index}">Editar</button></td>
+    <tr class="${isOverdueItem(item) ? "is-overdue" : ""}">
+      <td data-label="Data" class="strong">${escapeHtml(item.date)}</td>
+      <td data-label="Trilha"><span class="trilha ${trilhaClass(trilha)}">${escapeHtml(trilha)}</span></td>
+      <td data-label="Conteúdo">${escapeHtml(item.content)}</td>
+      <td data-label="Formato">${escapeHtml(item.channel)}</td>
+      <td data-label="Objetivo">${escapeHtml(item.goal)}</td>
+      <td data-label="Responsável">${escapeHtml(item.owner || "")}</td>
+      <td data-label="Status">${statusPill(item.status)}</td>
+      <td data-label="Observação">${formatTextLinks(item.note)}</td>
+      <td data-label="Links">${agendaLinksHtml(item)}</td>
+      <td data-label="Ações" class="edit-only"><button class="btn ghost" data-edit="agenda" data-index="${index}">Editar</button></td>
     </tr>`;
+}
+
+function itemMatchesTrilha(item, selected) {
+  if (selected === "Todas") return true;
+  const trilha = item.trilha || "Institucional";
+  const owner = item.owner || "";
+  return trilha === selected || owner.includes(selected);
+}
+
+function linksFromText(value) {
+  const matches = String(value || "").match(/https?:\/\/[^\s<]+|(?:www\.)?[a-z0-9.-]+\.[a-z]{2,}\/[^\s<]*/gi) || [];
+  return matches.map(item => item.replace(/[),.;]+$/g, ""));
+}
+
+function agendaLinksHtml(item) {
+  const links = [];
+  if (item.driveUrl) links.push({ label: "Upload", href: item.driveUrl });
+  if (item.refUrl) links.push({ label: "Ref", href: item.refUrl });
+  linksFromText(item.note).slice(0, 2).forEach((href, index) => links.push({ label: index ? "Ref 2" : "Ref", href }));
+  return links.length ? `<div class="link-stack">${links.map(link => `
+    <a class="mini-link" href="${escapeHtml(normalizeUrl(link.href))}" target="_blank" rel="noopener">${escapeHtml(link.label)}</a>
+  `).join("")}</div>` : `<span class="muted">—</span>`;
 }
 
 function renderAgenda() {
   const q = (agendaFilter.q || "").toLowerCase();
   const list = data.agenda.filter(item => {
-    const trilha = item.trilha || "Institucional";
-    if (agendaFilter.trilha !== "Todas" && trilha !== agendaFilter.trilha) return false;
+    if (!itemMatchesTrilha(item, agendaFilter.trilha)) return false;
     if (agendaFilter.status !== "Todos" && item.status !== agendaFilter.status) return false;
-    if (q && !`${item.content} ${item.goal} ${item.note} ${item.owner || ""}`.toLowerCase().includes(q)) return false;
+    if (q && !`${item.content} ${item.goal} ${item.note} ${item.owner || ""} ${item.trilha || ""}`.toLowerCase().includes(q)) return false;
     return true;
   });
 
@@ -1620,17 +1807,20 @@ function renderAgenda() {
   [...groups.keys()].sort((a, b) => a - b).forEach(key => {
     const items = groups.get(key).sort((a, b) => parseBRDate(a.date) - parseBRDate(b.date));
     const isCurrent = key === current;
-    html += `<tr class="week-row${isCurrent ? " week-current" : ""}"><td colspan="9">${weekLabel(key)} · ${items.length} publicação(ões)${isCurrent ? ' <span class="week-badge">ESTA SEMANA</span>' : ""}</td></tr>`;
+    html += `<tr class="week-row${isCurrent ? " week-current" : ""}"><td colspan="10">${weekLabel(key)} · ${items.length} publicação(ões)${isCurrent ? ' <span class="week-badge">ESTA SEMANA</span>' : ""}</td></tr>`;
     html += items.map(agendaRowHtml).join("");
   });
   if (undated.length) {
-    html += `<tr class="week-row week-backlog"><td colspan="9">Sem data definida · backlog de creators · ${undated.length} itens</td></tr>`;
+    html += `<tr class="week-row week-backlog"><td colspan="10">Sem data definida · backlog de creators · ${undated.length} itens</td></tr>`;
     html += undated.map(agendaRowHtml).join("");
   }
-  document.getElementById("agendaTable").innerHTML = html || `<tr><td colspan="9" class="muted">Nenhum item para os filtros atuais.</td></tr>`;
+  document.getElementById("agendaTable").innerHTML = html || `<tr><td colspan="10" class="muted">Nenhum item para os filtros atuais.</td></tr>`;
 
   const countEl = document.getElementById("agendaCount");
   if (countEl) countEl.textContent = `Mostrando ${list.length} de ${data.agenda.length}`;
+  document.querySelectorAll("[data-trilha-quick]").forEach(button => {
+    button.classList.toggle("active", button.dataset.trilhaQuick === agendaFilter.trilha);
+  });
 }
 
 function renderPerformance() {
@@ -1666,13 +1856,13 @@ function renderPerformance() {
 
   document.getElementById("performanceTable").innerHTML = data.performance.map((item, index) => `
     <tr>
-      <td class="strong">${escapeHtml(item.content)}</td>
-      <td>${escapeHtml(item.format)}</td>
-      <td>${escapeHtml(item.reach)}</td>
-      <td>${escapeHtml(item.interactions)}</td>
-      <td>${escapeHtml(item.signal)}</td>
-      <td>${escapeHtml(item.decision)}</td>
-      <td class="edit-only"><button class="btn ghost" data-edit="performance" data-index="${index}">Editar</button></td>
+      <td data-label="Conteúdo" class="strong">${escapeHtml(item.content)}</td>
+      <td data-label="Formato">${escapeHtml(item.format)}</td>
+      <td data-label="Alcance">${escapeHtml(item.reach)}</td>
+      <td data-label="Interações">${escapeHtml(item.interactions)}</td>
+      <td data-label="Sinal">${escapeHtml(item.signal)}</td>
+      <td data-label="Decisão">${formatTextLinks(item.decision)}</td>
+      <td data-label="Ações" class="edit-only"><button class="btn ghost" data-edit="performance" data-index="${index}">Editar</button></td>
     </tr>
   `).join("");
 }
@@ -1700,6 +1890,8 @@ function renderEditorial() {
 
 function render() {
   document.body.classList.toggle("editing", editing);
+  document.body.classList.toggle("team-mode", teamMode || editing || Boolean(supabaseSession));
+  document.getElementById("teamModeToggle").textContent = (teamMode || editing || supabaseSession) ? "Ocultar equipe" : "Área da equipe";
   document.getElementById("editToggle").textContent = editing ? "Desativar edição" : "Ativar edição";
   renderOverview();
   renderDeliveries();
@@ -1719,7 +1911,7 @@ function fillSupabaseForm() {
 function fieldsFor(type) {
   return {
     delivery: [["name", "Entrega"], ["owner", "Responsável"], ["due", "Prazo"], ["status", "Status", "select"], ["next", "Aprovação / decisão", "textarea"]],
-    agenda: [["date", "Data"], ["trilha", "Trilha", "select", ["Institucional", "Ananda", "Mafê", "Larumy", "Creators"]], ["content", "Conteúdo"], ["channel", "Formato"], ["goal", "Objetivo / CTA"], ["owner", "Responsável"], ["status", "Status", "select"], ["note", "Observação", "textarea"]],
+    agenda: [["date", "Data"], ["trilha", "Trilha", "select", ["Institucional", "Henrique", "Nathan", "Ananda", "Mafê", "Larumy", "Creators"]], ["content", "Conteúdo"], ["channel", "Formato"], ["goal", "Objetivo / CTA"], ["owner", "Responsável"], ["status", "Status", "select"], ["driveUrl", "Drive / upload"], ["refUrl", "Referência / trend"], ["note", "Observação", "textarea"]],
     editorial: [["text", "Diretriz", "textarea"]],
     perf: [["label", "Rótulo"], ["value", "Valor"], ["note", "Nota"]],
     perfFormat: [["format", "Formato"], ["views", "% Visualizações"], ["interactions", "% Interações"]],
@@ -1800,6 +1992,14 @@ document.getElementById("filterSearch").addEventListener("input", event => {
   renderAgenda();
 });
 
+document.querySelector(".quick-filters").addEventListener("click", event => {
+  const button = event.target.closest("[data-trilha-quick]");
+  if (!button) return;
+  agendaFilter.trilha = button.dataset.trilhaQuick;
+  document.getElementById("filterTrilha").value = agendaFilter.trilha;
+  renderAgenda();
+});
+
 document.body.addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");
   const addButton = event.target.closest("[data-add]");
@@ -1807,6 +2007,11 @@ document.body.addEventListener("click", event => {
   if (editButton) openEditor(editButton.dataset.edit, Number(editButton.dataset.index));
   if (addButton) openEditor(addButton.dataset.add);
   if (summaryButton) copyExecutiveSummary();
+});
+
+document.getElementById("teamModeToggle").addEventListener("click", () => {
+  teamMode = !teamMode;
+  render();
 });
 
 document.getElementById("editToggle").addEventListener("click", () => {
