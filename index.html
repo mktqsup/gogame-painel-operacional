@@ -810,8 +810,10 @@
       overflow: visible;
     }
 
-    table {
-      min-width: 0;
+    .table-wrap table,
+    #agenda table {
+      min-width: 0 !important;
+      width: 100%;
     }
 
     thead {
@@ -835,9 +837,11 @@
 
     td {
       display: grid;
-      grid-template-columns: 112px 1fr;
+      grid-template-columns: 104px 1fr;
       gap: 10px;
       padding: 10px 12px;
+      min-width: 0 !important;
+      white-space: normal !important;
     }
 
     td::before {
