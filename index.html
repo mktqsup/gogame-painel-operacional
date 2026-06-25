@@ -276,6 +276,73 @@
     line-height: 1.45;
   }
 
+  .command-center {
+    margin: 14px 0;
+  }
+
+  .command-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .command-head p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .signal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .signal {
+    min-height: 118px;
+    border: 1px solid rgba(168,164,215,.14);
+    border-radius: 14px;
+    background: rgba(255,255,255,.025);
+    padding: 13px;
+  }
+
+  .signal-label {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .signal-value {
+    margin-top: 6px;
+    font-size: 24px;
+    font-weight: 900;
+  }
+
+  .signal-text {
+    margin-top: 5px;
+    color: rgba(247,245,255,.72);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .signal.danger {
+    border-color: rgba(255,92,122,.3);
+    background: rgba(255,92,122,.08);
+  }
+
+  .signal.warn {
+    border-color: rgba(255,209,102,.3);
+    background: rgba(255,209,102,.08);
+  }
+
+  .signal.good {
+    border-color: rgba(85,255,103,.28);
+    background: rgba(0,224,0,.06);
+  }
+
   .status {
     display: inline-flex;
     align-items: center;
@@ -685,7 +752,8 @@
     .grid.cols-4,
     .grid.cols-3,
     .grid.cols-2,
-    .form-grid {
+    .form-grid,
+    .signal-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -750,6 +818,16 @@
         </div>
       </div>
       <div class="grid cols-4" id="overviewMetrics"></div>
+      <div class="card command-center">
+        <div class="command-head">
+          <div>
+            <h3 class="card-title">Centro de comando</h3>
+            <p>Leitura operacional para checkpoint rapido com equipe e cliente.</p>
+          </div>
+          <button class="btn ghost" type="button" data-copy-summary>Copiar resumo</button>
+        </div>
+        <div class="signal-grid" id="actionSignals"></div>
+      </div>
       <div class="card">
         <h3 class="card-title" id="weekTitle">Esta semana</h3>
         <div id="weekSummary"></div>
@@ -1309,6 +1387,122 @@ function currentMondayTime() {
   return mondayOf(new Date()).getTime();
 }
 
+function todayDate() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function daysFromToday(item) {
+  const d = parseBRDate(item.date);
+  if (!d) return null;
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - todayDate().getTime()) / 86400000);
+}
+
+function isOpenItem(item) {
+  return item.status !== "Aprovado";
+}
+
+function agendaLine(item) {
+  return `${item.date} - ${item.content} (${item.owner || "sem responsavel"} / ${item.status})`;
+}
+
+function operationalSignals() {
+  const datedOpen = data.agenda.filter(item => daysFromToday(item) !== null && isOpenItem(item));
+  const today = datedOpen.filter(item => daysFromToday(item) === 0);
+  const overdue = datedOpen.filter(item => daysFromToday(item) < 0);
+  const nextSeven = datedOpen
+    .filter(item => daysFromToday(item) >= 0 && daysFromToday(item) <= 7)
+    .sort((a, b) => daysFromToday(a) - daysFromToday(b));
+  const decisions = [
+    ...data.agenda.filter(item => item.status === "Bloqueado"),
+    ...data.deliveries.filter(item => item.status === "Bloqueado")
+  ];
+  return { today, overdue, nextSeven, decisions };
+}
+
+function renderActionSignals() {
+  const { today, overdue, nextSeven, decisions } = operationalSignals();
+  const firstToday = today[0];
+  const firstOverdue = overdue[0];
+  const firstNext = nextSeven[0];
+  const firstDecision = decisions[0];
+  const signals = [
+    {
+      label: "Hoje",
+      value: String(today.length),
+      text: firstToday ? agendaLine(firstToday) : "Sem item datado para hoje.",
+      tone: today.length ? "warn" : "good"
+    },
+    {
+      label: "Atrasos",
+      value: String(overdue.length),
+      text: firstOverdue ? agendaLine(firstOverdue) : "Nada aberto antes de hoje.",
+      tone: overdue.length ? "danger" : "good"
+    },
+    {
+      label: "Proximos 7 dias",
+      value: String(nextSeven.length),
+      text: firstNext ? agendaLine(firstNext) : "Sem entrega aberta no intervalo.",
+      tone: nextSeven.length ? "warn" : "good"
+    },
+    {
+      label: "Decisoes",
+      value: String(decisions.length),
+      text: firstDecision ? (firstDecision.content || firstDecision.name || "Bloqueio sem titulo") : "Sem bloqueios ativos.",
+      tone: decisions.length ? "danger" : "good"
+    }
+  ];
+
+  document.getElementById("actionSignals").innerHTML = signals.map(item => `
+    <div class="signal ${item.tone}">
+      <div class="signal-label">${escapeHtml(item.label)}</div>
+      <div class="signal-value">${escapeHtml(item.value)}</div>
+      <div class="signal-text">${escapeHtml(item.text)}</div>
+    </div>
+  `).join("");
+}
+
+function buildExecutiveSummary() {
+  const { today, overdue, nextSeven, decisions } = operationalSignals();
+  const lines = [
+    "GO GAME 2026 - Painel operacional",
+    `Atualizacao: ${data.updatedAt}`,
+    "",
+    `Hoje: ${today.length}`,
+    ...(today.length ? today.slice(0, 4).map(item => `- ${agendaLine(item)}`) : ["- Sem item datado para hoje."]),
+    "",
+    `Atrasos: ${overdue.length}`,
+    ...(overdue.length ? overdue.slice(0, 4).map(item => `- ${agendaLine(item)}`) : ["- Nada aberto antes de hoje."]),
+    "",
+    `Decisoes/bloqueios: ${decisions.length}`,
+    ...(decisions.length ? decisions.slice(0, 5).map(item => `- ${item.date || item.due || "sem prazo"} - ${item.content || item.name}: ${item.note || item.next || ""}`) : ["- Sem bloqueios ativos."]),
+    "",
+    `Proximos 7 dias: ${nextSeven.length}`,
+    ...(nextSeven.length ? nextSeven.slice(0, 5).map(item => `- ${agendaLine(item)}`) : ["- Sem entrega aberta no intervalo."]),
+    "",
+    `Painel: ${window.location.href}`
+  ];
+  return lines.join("\n");
+}
+
+async function copyExecutiveSummary() {
+  const text = buildExecutiveSummary();
+  try {
+    await navigator.clipboard.writeText(text);
+    setSyncStatus("Resumo copiado", supabaseClient ? "online" : "offline");
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+    setSyncStatus("Resumo copiado", supabaseClient ? "online" : "offline");
+  }
+}
+
 function renderOverview() {
   const agenda = data.agenda;
   const blockedAgenda = agenda.filter(item => item.status === "Bloqueado");
@@ -1334,6 +1528,8 @@ function renderOverview() {
       <div class="metric-note">${escapeHtml(item.note)}</div>
     </div>
   `).join("");
+
+  renderActionSignals();
 
   document.getElementById("weekTitle").textContent = `Esta semana · ${weekRange}`;
   document.getElementById("weekSummary").innerHTML = thisWeek.length ? thisWeek.map(item => `
@@ -1607,8 +1803,10 @@ document.getElementById("filterSearch").addEventListener("input", event => {
 document.body.addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");
   const addButton = event.target.closest("[data-add]");
+  const summaryButton = event.target.closest("[data-copy-summary]");
   if (editButton) openEditor(editButton.dataset.edit, Number(editButton.dataset.index));
   if (addButton) openEditor(addButton.dataset.add);
+  if (summaryButton) copyExecutiveSummary();
 });
 
 document.getElementById("editToggle").addEventListener("click", () => {
