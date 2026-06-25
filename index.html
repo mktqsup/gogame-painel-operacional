@@ -1,0 +1,1747 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO GAME 2026 — Painel Operacional</title>
+<style>
+  @font-face {
+    font-family: "Nickel Wide";
+    src: url("assets/kv_2026_v2/producao_final/06_ASSETS_E_FONTES/fonts/NickelGothicv3-Wide.woff2") format("woff2");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Nickel Regular";
+    src: url("assets/kv_2026_v2/producao_final/06_ASSETS_E_FONTES/fonts/NickelGothicv3-Regular.woff2") format("woff2");
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #060713;
+    --surface: #0d0a1e;
+    --surface-2: #180b2a;
+    --text: #f7f5ff;
+    --muted: #c2bef0;
+    --font-display: "Nickel Wide", "Segoe UI", Arial, sans-serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --line: rgba(168,164,215,.16);
+    --cyan: #08d9ff;
+    --magenta: #ff00d4;
+    --green: #00e000;
+    --green-soft: #55ff67;
+    --violet: #7b57ff;
+    --danger: #ff5c7a;
+    --warn: #ffd166;
+    --radius: 18px;
+    --shadow: 0 22px 70px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 12% 10%, rgba(8,217,255,.13), transparent 30%),
+      radial-gradient(circle at 86% 4%, rgba(255,0,212,.13), transparent 26%),
+      linear-gradient(135deg, var(--bg), #0b0820 52%, #09091b);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(8,217,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 90px 90px;
+    mask-image: radial-gradient(circle at center, black, transparent 78%);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  .app {
+    position: relative;
+    width: min(1180px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 24px 0 42px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: start;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(13,10,30,.92), rgba(24,11,42,.72));
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .brand {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .brand-logo {
+    width: min(270px, 44vw);
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 0 18px rgba(8,217,255,.25));
+  }
+
+  .eyebrow {
+    color: var(--green-soft);
+    font: 700 12px/1 Consolas, "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Nickel Wide", Arial, sans-serif;
+    font-size: clamp(25px, 4vw, 46px);
+    line-height: .98;
+    letter-spacing: .02em;
+  }
+
+  .subtitle {
+    margin: 10px 0 0;
+    color: rgba(247,245,255,.72);
+    line-height: 1.55;
+    max-width: 670px;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    background: rgba(255,255,255,.04);
+    padding: 10px 13px;
+    transition: .2s ease;
+  }
+
+  .btn:hover {
+    border-color: rgba(8,217,255,.55);
+    transform: translateY(-1px);
+  }
+
+  .btn.primary {
+    color: #06120a;
+    border-color: rgba(85,255,103,.65);
+    background: linear-gradient(135deg, var(--green), var(--green-soft));
+    font-weight: 800;
+  }
+
+  .btn.ghost {
+    color: var(--muted);
+  }
+
+  .sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,.03);
+    font-size: 12px;
+  }
+
+  .sync-status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--warn);
+    box-shadow: 0 0 12px currentColor;
+  }
+
+  .sync-status.online { color: var(--green-soft); }
+  .sync-status.online::before { background: var(--green-soft); }
+  .sync-status.offline { color: var(--warn); }
+  .sync-status.error { color: var(--danger); }
+  .sync-status.error::before { background: var(--danger); }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(6,7,19,.86);
+    backdrop-filter: blur(18px);
+    overflow-x: auto;
+  }
+
+  .nav button {
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--muted);
+    background: transparent;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
+  .nav button.active {
+    color: var(--text);
+    border-color: rgba(8,217,255,.45);
+    background: linear-gradient(135deg, rgba(8,217,255,.14), rgba(123,87,255,.14));
+  }
+
+  .section {
+    display: none;
+  }
+
+  .section.active {
+    display: block;
+  }
+
+  .grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(13,10,30,.86), rgba(13,10,30,.58));
+    box-shadow: 0 16px 44px rgba(0,0,0,.2);
+    padding: 18px;
+  }
+
+  .card-title {
+    margin: 0 0 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: .01em;
+  }
+
+  .metric-label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .metric-value {
+    margin-top: 9px;
+    font-family: "Nickel Wide", Arial, sans-serif;
+    font-size: 32px;
+  }
+
+  .metric-note {
+    margin-top: 7px;
+    color: rgba(247,245,255,.62);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+  }
+
+  .status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: currentColor;
+    box-shadow: 0 0 12px currentColor;
+  }
+
+  .s-approved { color: var(--green-soft); background: rgba(0,224,0,.08); }
+  .s-production { color: var(--cyan); background: rgba(8,217,255,.08); }
+  .s-review { color: var(--warn); background: rgba(255,209,102,.09); }
+  .s-blocked { color: var(--danger); background: rgba(255,92,122,.09); }
+  .s-scheduled { color: #c4b5fd; background: rgba(123,87,255,.1); }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
+  }
+
+  .toolbar h2 {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: .01em;
+  }
+
+  .toolbar p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(13,10,30,.66);
+  }
+
+  table {
+    width: 100%;
+    min-width: 860px;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    color: #6fe6ff;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    background: rgba(8,217,255,.08);
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  td {
+    padding: 13px 15px;
+    border-bottom: 1px solid rgba(168,164,215,.12);
+    color: rgba(247,245,255,.9);
+    font-size: 14px;
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:nth-child(even) td {
+    background: rgba(255,255,255,.018);
+  }
+
+  tbody tr:hover td {
+    background: rgba(8,217,255,.06);
+  }
+
+  /* Agenda: colunas curtas não quebram; colunas de texto podem quebrar */
+  #agenda table { min-width: 1060px; }
+  #agenda td:nth-child(1),
+  #agenda td:nth-child(2),
+  #agenda td:nth-child(6),
+  #agenda td:nth-child(7),
+  #agenda td:nth-child(9) { white-space: nowrap; }
+  #agenda td:nth-child(3) { min-width: 200px; }
+  #agenda td:nth-child(5) { min-width: 220px; }
+  #agenda td:nth-child(8) { min-width: 240px; }
+
+  .trilha {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid currentColor;
+    background: rgba(255,255,255,.04);
+  }
+  .t-institucional { color: var(--cyan); }
+  .t-ananda { color: var(--green-soft); }
+  .t-mafe { color: var(--magenta); }
+  .t-larumy { color: #c4b5fd; }
+  .t-creators { color: var(--warn); }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 14px;
+  }
+
+  .filters select,
+  .filters input {
+    width: auto;
+    min-width: 160px;
+    padding: 9px 12px;
+  }
+
+  .filters .count {
+    color: var(--muted);
+    font-size: 13px;
+    margin-left: auto;
+  }
+
+  #agenda tr.week-row td {
+    background: rgba(8,217,255,.10);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .02em;
+  }
+
+  #agenda tr.week-current td {
+    background: linear-gradient(90deg, rgba(0,224,0,.18), rgba(8,217,255,.10));
+    color: #eafff0;
+  }
+
+  #agenda tr.week-backlog td {
+    background: rgba(255,209,102,.10);
+    color: var(--warn);
+  }
+
+  .week-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--green);
+    color: #06120a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+  }
+
+  .week-item {
+    display: grid;
+    grid-template-columns: 54px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(168,164,215,.12);
+  }
+
+  .week-item:last-child { border-bottom: 0; }
+
+  .week-date {
+    color: var(--cyan);
+    font-weight: 700;
+  }
+
+  @media (max-width: 560px) {
+    .week-item {
+      grid-template-columns: 48px 1fr;
+      row-gap: 4px;
+    }
+    .week-item > span:last-child { grid-column: 2; }
+  }
+
+  .strong {
+    color: var(--text);
+    font-weight: 800;
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: rgba(247,245,255,.74);
+    background: rgba(255,255,255,.035);
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .editorial-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .editorial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255,255,255,.03);
+    padding: 11px 13px;
+    color: rgba(247,245,255,.82);
+    line-height: 1.45;
+    font-size: 14px;
+  }
+
+  .fmt {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(168,164,215,.12);
+  }
+
+  .fmt:last-child { border-bottom: 0; }
+
+  .fmt-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 84px 1fr 52px;
+    gap: 10px;
+    align-items: center;
+    margin: 5px 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .bar {
+    height: 9px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    overflow: hidden;
+  }
+
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .bar-fill.cyan { background: linear-gradient(90deg, var(--cyan), #67E8F9); }
+  .bar-fill.magenta { background: linear-gradient(90deg, var(--magenta), #ff66e0); }
+
+  .bar-val {
+    text-align: right;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .callout {
+    border: 1px solid rgba(8,217,255,.25);
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(8,217,255,.08), rgba(255,0,212,.06));
+    padding: 16px;
+    color: rgba(247,245,255,.76);
+    line-height: 1.55;
+  }
+
+  .edit-only {
+    display: none;
+  }
+
+  body.editing .edit-only {
+    display: inline-flex;
+  }
+
+  body.editing th.edit-only,
+  body.editing td.edit-only {
+    display: table-cell;
+  }
+
+  body.editing [data-editable="true"] {
+    outline: 1px dashed rgba(85,255,103,.45);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  label {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    background: rgba(255,255,255,.05);
+    padding: 10px 11px;
+  }
+
+  textarea {
+    min-height: 84px;
+    resize: vertical;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    padding: 18px;
+    background: rgba(0,0,0,.68);
+    overflow: auto;
+  }
+
+  .modal.open {
+    display: grid;
+    place-items: start center;
+  }
+
+  .modal-panel {
+    width: min(780px, 100%);
+    margin-top: 30px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: #0b0920;
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .modal-head h3 {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 800;
+  }
+
+  .file-link {
+    color: var(--cyan);
+    text-decoration: none;
+  }
+
+  .file-link:hover {
+    text-decoration: underline;
+  }
+
+  .footer-note {
+    margin-top: 22px;
+    color: rgba(247,245,255,.46);
+    font: 12px/1.5 Consolas, "Courier New", monospace;
+  }
+
+  @media (max-width: 900px) {
+    .topbar,
+    .brand {
+      grid-template-columns: 1fr;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .top-actions {
+      justify-content: flex-start;
+    }
+
+    .grid.cols-4,
+    .grid.cols-3,
+    .grid.cols-2,
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .app {
+      width: min(100% - 18px, 1180px);
+      padding-top: 10px;
+    }
+
+    .topbar {
+      padding: 18px;
+      border-radius: 22px;
+    }
+
+    .brand-logo {
+      width: min(260px, 84vw);
+    }
+
+    .metric-value {
+      font-size: 27px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/official_logos/gogame_official_logo_transparent_horizontal.png" alt="GO GAME Festival">
+      <div>
+        <div class="eyebrow">&gt;_ o sistema voltou</div>
+        <h1>Painel Operacional 2026</h1>
+        <p class="subtitle">Acompanhamento simples de entregas, agenda, aprovações e desempenho do Instagram para cliente e time.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="sync-status offline" id="syncStatus">Modo local</span>
+      <button class="btn ghost" id="supabaseBtn">Supabase</button>
+      <button class="btn primary" id="editToggle">Ativar edição</button>
+      <button class="btn ghost edit-only" id="exportBtn">Exportar dados</button>
+      <button class="btn ghost edit-only" id="importBtn">Importar JSON</button>
+      <input id="importFile" type="file" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="Navegação principal">
+    <button class="active" data-tab="overview">01 Visão Geral</button>
+    <button data-tab="deliveries">02 Produção</button>
+    <button data-tab="agenda">03 Agenda</button>
+    <button data-tab="performance">04 Desempenho</button>
+    <button data-tab="files">05 Arquivos Aprovados</button>
+    <button data-tab="strategy">06 Estratégia</button>
+  </nav>
+
+  <main>
+    <section class="section active" id="overview">
+      <div class="toolbar">
+        <div>
+          <h2>Visão Geral</h2>
+          <p>Status executivo para decisões rápidas.</p>
+        </div>
+      </div>
+      <div class="grid cols-4" id="overviewMetrics"></div>
+      <div class="card">
+        <h3 class="card-title" id="weekTitle">Esta semana</h3>
+        <div id="weekSummary"></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3 class="card-title">Próxima publicação</h3>
+          <div id="nextDelivery"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Bloqueios que precisam de decisão</h3>
+          <div id="blockers"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="deliveries">
+      <div class="toolbar">
+        <div>
+          <h2>Produção interna</h2>
+          <p>Tarefas que o time precisa fechar para a agenda sair: entrega, responsável, prazo, status e a decisão necessária.</p>
+        </div>
+        <button class="btn edit-only" data-add="delivery">Adicionar tarefa</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Entrega</th>
+              <th>Responsável</th>
+              <th>Prazo</th>
+              <th>Status</th>
+              <th>Aprovação / decisão</th>
+              <th class="edit-only">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="deliveriesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="agenda">
+      <div class="toolbar">
+        <div>
+          <h2>Agenda de publicações</h2>
+          <p>Calendário real do que vai ao ar entre 22/06 e 06/07. Edite data, conteúdo, formato, responsável e status pelo botão Editar.</p>
+        </div>
+        <button class="btn edit-only" data-add="agenda">Adicionar publicação</button>
+      </div>
+      <div class="filters">
+        <select id="filterTrilha">
+          <option value="Todas">Todas as trilhas</option>
+          <option>Institucional</option>
+          <option>Ananda</option>
+          <option>Mafê</option>
+          <option>Larumy</option>
+          <option>Creators</option>
+        </select>
+        <select id="filterStatus">
+          <option value="Todos">Todos os status</option>
+          <option>Aprovado</option>
+          <option>Em produção</option>
+          <option>Em revisão</option>
+          <option>Bloqueado</option>
+          <option>Programado</option>
+        </select>
+        <input id="filterSearch" type="search" placeholder="Buscar conteúdo...">
+        <span class="count" id="agendaCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Trilha</th>
+              <th>Conteúdo</th>
+              <th>Formato</th>
+              <th>Objetivo / CTA</th>
+              <th>Responsável</th>
+              <th>Status</th>
+              <th>Observação</th>
+              <th class="edit-only">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="agendaTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="performance">
+      <div class="toolbar">
+        <div>
+          <h2>Desempenho Instagram</h2>
+          <p>Resumo da conta @gogamefestival. Atualizar semanalmente com o Instagram Insights / Meta Business Suite.</p>
+        </div>
+        <button class="btn edit-only" data-add="perf">Adicionar número</button>
+      </div>
+      <div class="grid cols-4" id="perfSnapshot"></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="toolbar">
+            <div><h3 class="card-title">Distribuição por formato</h3></div>
+            <button class="btn edit-only" data-add="perfFormat">Adicionar formato</button>
+          </div>
+          <div id="perfFormats"></div>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <div><h3 class="card-title">Leituras e sinais</h3></div>
+            <button class="btn edit-only" data-add="perfInsight">Adicionar leitura</button>
+          </div>
+          <div class="editorial-list" id="perfInsights"></div>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:8px">
+        <div>
+          <h3 class="card-title">Acompanhamento por publicação</h3>
+          <p class="muted" style="margin:4px 0 0">Preencher alcance e interações após cada publicação importante.</p>
+        </div>
+        <button class="btn edit-only" data-add="performance">Adicionar publicação</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Conteúdo</th>
+              <th>Formato</th>
+              <th>Alcance</th>
+              <th>Interações</th>
+              <th>Sinal forte</th>
+              <th>Decisão</th>
+              <th class="edit-only">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="performanceTable"></tbody>
+        </table>
+      </div>
+      <p class="footer-note">Números do Instagram Insights / Meta Business Suite. Edição salva no Supabase (login) ou no navegador; exportar/importar JSON disponível no modo edição.</p>
+    </section>
+
+    <section class="section" id="files">
+      <div class="toolbar">
+        <div>
+          <h2>Arquivos Aprovados</h2>
+          <p>Links e materiais finais para uso do time.</p>
+        </div>
+        <button class="btn edit-only" data-add="file">Adicionar arquivo</button>
+      </div>
+      <div class="grid cols-2" id="filesGrid"></div>
+    </section>
+
+    <section class="section" id="strategy">
+      <div class="toolbar">
+        <div>
+          <h2>Estratégia</h2>
+          <p>Resumo enxuto do que orienta as decisões de conteúdo.</p>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3 class="card-title">Direção</h3>
+          <p class="muted">Marca futurista, tecnológica, premium e proprietária. O painel evita excesso visual para priorizar leitura, decisão e andamento.</p>
+          <div class="chips">
+            <span class="chip">Base escura</span>
+            <span class="chip">Neon controlado</span>
+            <span class="chip">Dados claros</span>
+            <span class="chip">Sem ruído operacional para cliente</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Regras de conteúdo</h3>
+          <p class="muted">Sempre “festival”. Data oficial: 11, 12 e 13 de setembro de 2026. Local: Passeio das Águas Shopping. Realização: AGES.</p>
+          <div class="chips">
+            <span class="chip">gogamefestival.com.br</span>
+            <span class="chip">@gogamefestival</span>
+            <span class="chip">O sistema voltou</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <div>
+            <h3 class="card-title">Linha editorial (não negociável)</h3>
+          </div>
+          <button class="btn edit-only" data-add="editorial">Adicionar diretriz</button>
+        </div>
+        <div id="editorialList" class="editorial-list"></div>
+      </div>
+      <div class="callout">
+        A estratégia completa permanece documentada nos arquivos do projeto. Este painel deve mostrar somente o necessário para acompanhar entregas, aprovar decisões e corrigir rota.
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-note" id="lastSaved"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3 id="modalTitle">Editar</h3>
+      <button class="btn ghost" id="closeModal">Fechar</button>
+    </div>
+    <form id="editForm"></form>
+  </div>
+</div>
+
+<div class="modal" id="supabaseModal">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3>Conexão Supabase</h3>
+      <button class="btn ghost" id="closeSupabaseModal">Fechar</button>
+    </div>
+    <div class="callout">
+      Leitura pública, edição somente com login Supabase Auth. Preencha URL e anon key apenas se o arquivo <code>supabase-config.js</code> ainda não estiver configurado.
+    </div>
+    <form id="supabaseForm">
+      <div class="form-grid">
+        <label>Project URL
+          <input name="url" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
+        </label>
+        <label>Anon public key
+          <input name="anonKey" id="supabaseAnonKey" placeholder="eyJ...">
+        </label>
+        <label>Slug do painel
+          <input name="dashboardSlug" id="supabaseSlug" value="gogame-2026-operacional">
+        </label>
+        <label>Email para edição
+          <input name="email" id="supabaseEmail" type="email" placeholder="seu@email.com">
+        </label>
+      </div>
+      <div class="top-actions">
+        <button class="btn primary" type="submit">Salvar e conectar</button>
+        <button class="btn ghost" type="button" id="loginSupabase">Entrar por magic link</button>
+        <button class="btn ghost" type="button" id="logoutSupabase">Sair</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const STORAGE_KEY = "gogame-dashboard-operacional-v2";
+const SUPABASE_SETTINGS_KEY = "gogame-supabase-settings-v1";
+const STATUS_CLASS = {
+  "Aprovado": "s-approved",
+  "Em produção": "s-production",
+  "Em revisão": "s-review",
+  "Bloqueado": "s-blocked",
+  "Programado": "s-scheduled"
+};
+
+const defaultData = {
+  updatedAt: "24/06/2026",
+  agenda: [
+    { date: "22/06", content: "Comunidade GoGamers", channel: "Carrossel + Stories", goal: "Engajamento · entrar na comunidade WhatsApp", owner: "Henrique", status: "Em revisão", note: "Prioridade do dia. Depende de benefício real + link/CTA correto." },
+    { date: "23/06", content: "Sustentação da comunidade", channel: "Stories", goal: "Reforçar benefício · responder dúvidas", owner: "Henrique", status: "Programado", note: "Roteiro leve no dia. Depende do link + respostas da comunidade." },
+    { date: "24/06", content: "Você conhece a Go Game?", channel: "Reels cinematic", goal: "Alcance · mostrar escala e experiência", owner: "Nathan", status: "Em produção", note: "Master até 23/06 + 2 aprovações. Depende de b-roll Danilo/On.Flow." },
+    { date: "25/06", content: "Aquecimento \"faltam 7 dias\"", channel: "Stories teaser", goal: "Preparar countdown sem antecipar oferta", owner: "Henrique", status: "Programado", note: "Story até 24/06. Depende da arte de 26/06 em aprovação." },
+    { date: "26/06", content: "Faltam 7 dias + resultado sorteio TBT", channel: "Feed/arte + Stories", goal: "FOMO · prova social · resultado oficial", owner: "Henrique", status: "Em produção", note: "Peças até 25/06. Depende do vencedor validado + regras do sorteio." },
+    { date: "27/06", content: "Bastidor / memória de edições anteriores", channel: "Stories", goal: "Atmosfera · manter presença", owner: "Nathan", status: "Programado", note: "Seleção de b-roll/foto. Depende de banco aprovado 2024/2025." },
+    { date: "28/06", content: "Interação de aquecimento", channel: "Stories", goal: "Enquete/pergunta sobre expectativa", owner: "Henrique", status: "Programado", note: "Montar no dia anterior. Moderação e respostas." },
+    { date: "29/06", content: "Contagem regressiva para o carrinho", channel: "Stories", goal: "FOMO · preparar 03/07", owner: "Henrique", status: "Programado", note: "Até 28/06. Data confirmada; sem preço não aprovado." },
+    { date: "30/06", content: "Meme \"Tá dormindo?\"", channel: "Carrossel + Stories", goal: "Engajamento · compartilhamento", owner: "Henrique", status: "Aprovado", note: "Feito. Validar versão final antes de agendar." },
+    { date: "01/07", content: "\"É nesta semana\" + dúvidas frequentes", channel: "Stories", goal: "Preparar compra · abrir caixa de perguntas", owner: "Henrique", status: "Bloqueado", note: "Até 30/06. Depende de FAQ mínimo + estrutura de ingressos." },
+    { date: "02/07", content: "Diferenças dos ingressos", channel: "Carrossel + Stories", goal: "Conversão · explicar oferta antes da abertura", owner: "Henrique", status: "Bloqueado", note: "Master até 01/07. Depende de tipos, benefícios, preços e regras." },
+    { date: "03/07", content: "Teaser oficial de abertura", channel: "Reels cinematic", goal: "Conversão · carrinho aberto", owner: "Nathan", status: "Em produção", note: "Crítico. Master até 02/07. Depende de vídeo final + URL Sympla." },
+    { date: "03/07", content: "Lote promocional disponível", channel: "Feed + Stories", goal: "Conversão direta · CTA para Sympla", owner: "Henrique", status: "Bloqueado", note: "Depende de Sympla publicada + preço + lote + link." },
+    { date: "03/07", content: "Lote esgotado", channel: "Story condicional", goal: "Urgência e prova social", owner: "Henrique", status: "Programado", note: "Condicional. Publicar só após confirmação real de esgotamento." },
+    { date: "04/07", content: "Primeiros sinais da abertura", channel: "Stories", goal: "Prova social · dúvidas · lembrete", owner: "Henrique", status: "Programado", note: "Moldura até 03/07. Depende de dados reais de venda/interação." },
+    { date: "05/07", content: "Última chamada do fim de semana", channel: "Stories", goal: "Conversão · recuperar indecisos", owner: "Henrique", status: "Programado", note: "Condicional. Até 04/07. Lote ainda disponível + link correto." },
+    { date: "06/07", content: "Vamos no Go Game 2026?", channel: "Reels trend", goal: "Alcance + intenção", owner: "Nathan", status: "Programado", note: "Master até 05/07. Trend ainda relevante + CTA atualizado." },
+    { date: "a definir", trilha: "Ananda", content: "O que é o Go Game Festival? (institucional)", channel: "Reels", goal: "Consciência · apresentar o evento e a edição 2026", owner: "Ananda", status: "Programado", note: "Importância para a comunidade gamer e o que esperar de 2026." },
+    { date: "a definir", trilha: "Ananda", content: "Tipos de ingresso (meet, vip, individual)", channel: "Carrossel", goal: "Conversão · explicar oferta", owner: "Ananda", status: "Programado", note: "Pode ser carrossel. Só a partir de 03/07 (carrinho aberto)." },
+    { date: "a definir", trilha: "Ananda", content: "Por que Goiás merece um evento como o Go Game?", channel: "Reels", goal: "Consciência · cena gamer regional", owner: "Ananda", status: "Programado", note: "Corrigido de \"Centro-Oeste\" para \"de Goiás\" (regra de marca)." },
+    { date: "a definir", trilha: "Ananda", content: "Campeonatos de eSports", channel: "Reels", goal: "Engajamento · arena competitiva (#ArenaGoGame)", owner: "Ananda", status: "Programado", note: "" },
+    { date: "a definir", trilha: "Ananda", content: "Trend: quando meu duo me chama pra jogar", channel: "Reels trend", goal: "Alcance · identificação gamer", owner: "Ananda", status: "Programado", note: "Trend viral. Validar relevância na véspera." },
+    { date: "a definir", trilha: "Ananda", content: "Trend: esperando a venda de ingresso abrir", channel: "Reels trend", goal: "FOMO · abertura do carrinho", owner: "Ananda", status: "Programado", note: "\"Quase dormindo na cadeira\". Conecta com 03/07." },
+    { date: "a definir", trilha: "Ananda", content: "Já comprou seu ingresso?", channel: "Reels", goal: "Conversão", owner: "Ananda", status: "Programado", note: "Só a partir de 03/07 (carrinho aberto)." },
+    { date: "a definir", trilha: "Ananda", content: "Trend: 2h da manhã comemorando uma vitória", channel: "Reels trend", goal: "Alcance · identificação", owner: "Ananda", status: "Programado", note: "Ref: tiktok.com/@raquelsegal/video/7626506260963151125" },
+    { date: "a definir", trilha: "Ananda", content: "Trend: horas jogando e lembra da Go Game", channel: "Reels trend", goal: "Alcance · identificação", owner: "Ananda", status: "Programado", note: "Ref: tiktok.com/@_biel.ramos/video/7622759689171848456" },
+    { date: "a definir", trilha: "Mafê", content: "Confirmação do concurso cosplay 2026", channel: "Reels", goal: "Consciência · concurso cosplay", owner: "Mafê", status: "Programado", note: "Depende do line-up/programação confirmados antes de anunciar." },
+    { date: "a definir", trilha: "Mafê", content: "Já comprou seu ingresso?", channel: "Reels", goal: "Conversão", owner: "Mafê", status: "Programado", note: "Só a partir de 03/07." },
+    { date: "a definir", trilha: "Mafê", content: "Transformação cosplay", channel: "Reels", goal: "Engajamento · #CosplayEmFoco", owner: "Mafê", status: "Programado", note: "Processo de caracterização." },
+    { date: "a definir", trilha: "Mafê", content: "Dicas de cosplay de armário pro Go Game", channel: "Reels", goal: "Engajamento · participação", owner: "Mafê", status: "Programado", note: "Cosplay acessível, dá tempo de fazer." },
+    { date: "a definir", trilha: "Mafê", content: "Os cosplays que mais vou ver no Go Game", channel: "Reels", goal: "Engajamento · expectativa", owner: "Mafê", status: "Programado", note: "" },
+    { date: "a definir", trilha: "Mafê", content: "Evento geek em Goiânia que vale conhecer", channel: "Reels", goal: "Alcance · institucional regional", owner: "Mafê", status: "Programado", note: "Colab Secretaria de Turismo de Goiânia — exige alinhamento/aprovação antes." },
+    { date: "a definir", trilha: "Mafê", content: "SAC cosplay + gancho das cortesias", channel: "Reels", goal: "Relacionamento · responder cosplayers", owner: "Mafê", status: "Programado", note: "Lê pedidos, anuncia concurso e deixa gancho das cortesias." },
+    { date: "a definir", trilha: "Mafê", content: "Meme: e as cortesias cosplay nada ainda?", channel: "Reels", goal: "Engajamento · humor", owner: "Mafê", status: "Programado", note: "Depende da definição das cortesias cosplay." },
+    { date: "a definir", trilha: "Mafê", content: "Desafio: desenhando a logo do Go Game", channel: "Reels trend", goal: "Engajamento · desafio", owner: "Mafê", status: "Programado", note: "Ref: vt.tiktok.com/ZSCeBgGbm" },
+    { date: "a definir", trilha: "Mafê", content: "Trend goianiense (\"sou goianiense\")", channel: "Reels trend", goal: "Alcance · identidade local", owner: "Mafê", status: "Programado", note: "Ref: vt.tiktok.com/ZSCeBGxDQ" },
+    { date: "a definir", trilha: "Larumy", content: "Convite internacional (do Japão para Goiânia)", channel: "Reels", goal: "Consciência · conexão cultural", owner: "Larumy", status: "Programado", note: "Gravar em locais icônicos do Japão. Anime, K-pop, cosplay e cultura geek." },
+    { date: "a definir", trilha: "Larumy", content: "Três coisas inspiradas no Japão na Go Game", channel: "Reels", goal: "Consciência · cultura japonesa", owner: "Larumy", status: "Programado", note: "Animes/mangás, cosplay e games; ambientação LED + action figure." },
+    { date: "a definir", trilha: "Larumy", content: "O Japão que inspira a cultura geek", channel: "Reels", goal: "Consciência · referência cultural", owner: "Larumy", status: "Programado", note: "Pontos turísticos / lojas de anime." },
+    { date: "a definir", trilha: "Larumy", content: "Confirmação do concurso K-pop 2026", channel: "Reels", goal: "Consciência · concurso K-pop", owner: "Larumy", status: "Programado", note: "Depende do line-up/programação confirmados antes de anunciar." },
+    { date: "a definir", trilha: "Larumy", content: "O que esperar da área K-pop", channel: "Reels", goal: "Consciência · #ExperiênciaGeek", owner: "Larumy", status: "Programado", note: "Concursos, apresentações, random dance e atrações." },
+    { date: "a definir", trilha: "Larumy", content: "SAC K-pop (principais dúvidas)", channel: "Reels", goal: "Relacionamento · responder dúvidas", owner: "Larumy", status: "Programado", note: "" },
+    { date: "a definir", trilha: "Larumy", content: "Já comprou seu ingresso?", channel: "Reels", goal: "Conversão", owner: "Larumy", status: "Programado", note: "Só a partir de 03/07." },
+    { date: "a definir", trilha: "Larumy", content: "Trend: B-Army chegou na Go Game", channel: "Reels trend", goal: "Alcance · fandom", owner: "Larumy", status: "Programado", note: "Ref: tiktok.com/@lidiasaldanha_/video/7643200435993578773" },
+    { date: "a definir", trilha: "Larumy", content: "POV: Go Game chegou", channel: "Reels trend", goal: "Alcance · identificação", owner: "Larumy", status: "Programado", note: "Ref: tiktok.com/@patriciamulyana/video/7403721838913948933" },
+    { date: "a definir", trilha: "Larumy", content: "Trend: ladrão x bolsa de k-popper", channel: "Reels trend", goal: "Alcance · humor fandom", owner: "Larumy", status: "Programado", note: "Ref: tiktok.com/@clecioliveroficial/video/7654561180651982098" },
+    { date: "a definir", trilha: "Creators", content: "Conteúdo com o trio (Ananda + Mafê + Larumy)", channel: "Reels colab", goal: "Alcance · cross-fandom", owner: "Ananda / Mafê / Larumy", status: "Programado", note: "Gravação conjunta a marcar (msg Ananda 24/06)." }
+  ],
+  deliveries: [
+    { name: "Fechar carrossel Comunidade GoGamers e CTA", owner: "Henrique", due: "22/06", status: "Em revisão", next: "Aprovação Nathan e Ana/Junior conforme fluxo." },
+    { name: "Cobrar e organizar b-roll das edições anteriores", owner: "Nathan + Danilo/On.Flow", due: "22/06", status: "Bloqueado", next: "Selecionar somente material liberado. Destrava os Reels cinematic." },
+    { name: "Fechar Reels \"Você conhece a Go Game?\"", owner: "Nathan", due: "23/06", status: "Em produção", next: "Aprovação Muryllo + Henrique; depois marca." },
+    { name: "Fechar arte de countdown e template do TBT", owner: "Henrique", due: "24/06", status: "Programado", next: "Aprovação Henrique + Nathan; depois marca." },
+    { name: "Confirmar vencedor e texto oficial do TBT", owner: "Nathan / Marca", due: "25/06", status: "Programado", next: "Validação humana registrada." },
+    { name: "Fechar estrutura, benefícios e preços dos ingressos", owner: "Kid / Marca", due: "29/06", status: "Bloqueado", next: "Decisão final para carrossel, FAQ e Sympla." },
+    { name: "Fechar FAQ mínimo e jornada do link da bio", owner: "QSUP + Marca", due: "30/06", status: "Bloqueado", next: "Link real do Sympla e regras oficiais." },
+    { name: "Aprovar carrossel de ingressos e kit de abertura", owner: "Muryllo + Henrique + Nathan", due: "01/07", status: "Programado", next: "Aprovação Junior/Kid/Ana." },
+    { name: "QA final: teaser, feed, stories, links e contingências", owner: "Muryllo + Nathan", due: "02/07", status: "Programado", next: "Liberação final de publicação." },
+    { name: "Plantão de abertura e atualização por dado real", owner: "Heads", due: "03/07", status: "Programado", next: "Vendas, dúvidas, lote e prova social." }
+  ],
+  editorial: [
+    { text: "Vídeo cinematográfico é prioridade: b-roll, atmosfera, ambiente, texto na tela e trilha." },
+    { text: "Sem rosto como protagonista e sem narração. Ana Claudia só em contexto institucional." },
+    { text: "Reels puxam alcance; Stories sustentam frequência; feed estático entrega serviço e conversão." },
+    { text: "Material pronto no mínimo 1 dia antes e com 2 aprovações internas antes da marca." },
+    { text: "Copy sempre \"festival\" e claim \"de Goiás\" (nunca \"feira\"/\"Centro-Oeste\")." },
+    { text: "Atrações confirmadas só entram depois da abertura do lote promocional em julho." }
+  ],
+  perf: [
+    { label: "Seguidores", value: "28.032", note: "529 publicações no perfil" },
+    { label: "Contas alcançadas (30d)", value: "39.208", note: "Últimos 30 dias" },
+    { label: "Interações (30d)", value: "13.186", note: "4.127 contas engajadas" },
+    { label: "Visualizações (30d)", value: "238.767", note: "Stories 52,7% · Reels 44%" },
+    { label: "Visitas ao perfil (30d)", value: "11.513", note: "14.262 atividades de perfil" },
+    { label: "Toques em links (30d)", value: "2.462", note: "Cliques no link da bio" },
+    { label: "Comunidade WhatsApp", value: "1.055", note: "+34 pedidos em creators" },
+    { label: "Atualizado em", value: "17/06", note: "Fonte: Instagram Insights" }
+  ],
+  perfFormats: [
+    { format: "Reels", views: "44,0", interactions: "63,7" },
+    { format: "Stories", views: "52,7", interactions: "20,5" },
+    { format: "Posts", views: "3,2", interactions: "15,8" }
+  ],
+  perfInsights: [
+    { text: "Reels puxam descoberta e interação (44% das views, 63,7% das interações) → priorizar Reels cinematic." },
+    { text: "Stories sustentam a frequência diária (52,7% das visualizações)." },
+    { text: "Melhor janela da base: segunda-feira às 15h — ajustar pelo horário que já funcionou." },
+    { text: "Tração vem de experiência, presença humana e prova social, mais que post estático." }
+  ],
+  performance: [
+    { content: "Comunidade GoGamers", format: "Carrossel", reach: "—", interactions: "—", signal: "Cliques e respostas", decision: "Reforçar CTA se clique baixo." },
+    { content: "Você conhece a Go Game?", format: "Reels", reach: "—", interactions: "—", signal: "Retenção e compartilhamento", decision: "Se performar, virar série institucional." },
+    { content: "Lote promocional disponível", format: "Feed + Stories", reach: "—", interactions: "—", signal: "Cliques e DMs", decision: "FAQ e urgência se houver objeção." }
+  ],
+  files: [
+    { title: "Pacote oficial aprovado — data/local", status: "Aprovado", path: "assets/posts/PRODUCAO_OFICIAL_APROVADA_2026-06-21/02_GO_GAME_2026_ANUNCIO_DATA_LOCAL_OFICIAL_APROVADO_1080x1350.png", note: "PNG fiel à arte aprovada, sem troca de fonte." },
+    { title: "Manifest da produção oficial", status: "Aprovado", path: "assets/posts/PRODUCAO_OFICIAL_APROVADA_2026-06-21/04_MANIFEST_PRODUCAO.md", note: "Rastreabilidade do material aprovado." }
+  ]
+};
+
+let data = loadLocalData();
+let editing = false;
+let currentEdit = null;
+let supabaseClient = null;
+let supabaseConfig = getSupabaseConfig();
+let supabaseSession = null;
+let remoteReady = false;
+let remoteRowId = null;
+let realtimeChannel = null;
+let agendaFilter = { trilha: "Todas", status: "Todos", q: "" };
+
+function loadLocalData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return structuredClone(defaultData);
+  try {
+    return { ...structuredClone(defaultData), ...JSON.parse(saved) };
+  } catch {
+    return structuredClone(defaultData);
+  }
+}
+
+function getSupabaseConfig() {
+  const fileConfig = window.GOGAME_SUPABASE_CONFIG || {};
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(SUPABASE_SETTINGS_KEY) || "{}");
+  } catch {
+    saved = {};
+  }
+  return {
+    url: saved.url || fileConfig.url || "",
+    anonKey: saved.anonKey || fileConfig.anonKey || "",
+    dashboardSlug: saved.dashboardSlug || fileConfig.dashboardSlug || "gogame-2026-operacional"
+  };
+}
+
+function hasSupabaseConfig() {
+  return Boolean(supabaseConfig.url && supabaseConfig.anonKey && window.supabase);
+}
+
+function setSyncStatus(text, state = "offline") {
+  const el = document.getElementById("syncStatus");
+  el.textContent = text;
+  el.className = `sync-status ${state}`;
+}
+
+async function initSupabase() {
+  supabaseConfig = getSupabaseConfig();
+  fillSupabaseForm();
+
+  if (!hasSupabaseConfig()) {
+    setSyncStatus("Modo local", "offline");
+    render();
+    return;
+  }
+
+  try {
+    supabaseClient = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      supabaseSession = session;
+      if (!session) editing = false;
+      setSyncStatus(session ? "Supabase conectado" : "Supabase leitura", "online");
+      render();
+    });
+    const sessionResult = await supabaseClient.auth.getSession();
+    supabaseSession = sessionResult.data.session;
+    await loadRemoteData();
+    subscribeRealtime();
+    setSyncStatus(supabaseSession ? "Supabase conectado" : "Supabase leitura", "online");
+  } catch (error) {
+    console.error(error);
+    setSyncStatus("Erro Supabase", "error");
+    render();
+  }
+}
+
+async function loadRemoteData() {
+  if (!supabaseClient) return;
+  const { data: row, error } = await supabaseClient
+    .from("gogame_dashboards")
+    .select("id,data,updated_at")
+    .eq("slug", supabaseConfig.dashboardSlug)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (row?.data) {
+    remoteReady = true;
+    remoteRowId = row.id;
+    data = { ...structuredClone(defaultData), ...row.data };
+    data.updatedAt = new Date(row.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
+  }
+  render();
+}
+
+function subscribeRealtime() {
+  if (!supabaseClient || realtimeChannel) return;
+  realtimeChannel = supabaseClient
+    .channel("gogame-dashboard-realtime")
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "gogame_dashboards",
+      filter: `slug=eq.${supabaseConfig.dashboardSlug}`
+    }, payload => {
+      if (payload.new?.data) {
+        data = { ...structuredClone(defaultData), ...payload.new.data };
+        data.updatedAt = new Date(payload.new.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
+        render();
+      }
+    })
+    .subscribe();
+}
+
+async function saveData() {
+  data.updatedAt = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
+  if (supabaseClient && supabaseSession) {
+    const payload = {
+      slug: supabaseConfig.dashboardSlug,
+      title: "GO GAME 2026 — Painel Operacional",
+      data,
+      updated_by: supabaseSession.user.id
+    };
+    const { error } = await supabaseClient
+      .from("gogame_dashboards")
+      .upsert(payload, { onConflict: "slug" });
+    if (error) {
+      console.error(error);
+      setSyncStatus("Erro ao salvar", "error");
+    } else {
+      setSyncStatus("Salvo no Supabase", "online");
+    }
+  } else if (supabaseClient && !supabaseSession) {
+    setSyncStatus("Login exigido para editar", "error");
+  }
+  render();
+}
+
+function statusPill(status) {
+  const cls = STATUS_CLASS[status] || "s-scheduled";
+  return `<span class="status ${cls}">${escapeHtml(status)}</span>`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+function dateToNum(value) {
+  const match = String(value).match(/(\d{1,2})\/(\d{1,2})/);
+  return match ? Number(match[2]) * 100 + Number(match[1]) : 9999;
+}
+
+function todayNum() {
+  const now = new Date();
+  return (now.getMonth() + 1) * 100 + now.getDate();
+}
+
+function nextAgendaItem() {
+  const sorted = [...data.agenda].sort((a, b) => dateToNum(a.date) - dateToNum(b.date));
+  const today = todayNum();
+  return sorted.find(item => dateToNum(item.date) >= today) || sorted[sorted.length - 1] || null;
+}
+
+function parseBRDate(value) {
+  const m = String(value).match(/^(\d{1,2})\/(\d{1,2})/);
+  return m ? new Date(2026, Number(m[2]) - 1, Number(m[1])) : null;
+}
+
+function mondayOf(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+
+function fmtDM(date) {
+  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function weekKeyOf(item) {
+  const d = parseBRDate(item.date);
+  return d ? mondayOf(d).getTime() : null;
+}
+
+function weekLabel(mondayTime) {
+  const mon = new Date(mondayTime);
+  const sun = new Date(mondayTime);
+  sun.setDate(sun.getDate() + 6);
+  return `Semana de ${fmtDM(mon)} a ${fmtDM(sun)}`;
+}
+
+function currentMondayTime() {
+  return mondayOf(new Date()).getTime();
+}
+
+function renderOverview() {
+  const agenda = data.agenda;
+  const blockedAgenda = agenda.filter(item => item.status === "Bloqueado");
+  const inProduction = agenda.filter(item => item.status === "Em produção" || item.status === "Em revisão");
+  const next = nextAgendaItem();
+
+  const current = currentMondayTime();
+  const thisWeek = agenda
+    .filter(item => weekKeyOf(item) === current)
+    .sort((a, b) => parseBRDate(a.date) - parseBRDate(b.date));
+  const weekRange = weekLabel(current).replace("Semana de ", "");
+
+  const metrics = [
+    { label: "Próxima publicação", value: next ? next.date : "—", note: next ? next.content : "Agenda vazia" },
+    { label: "Publicações esta semana", value: String(thisWeek.length), note: weekRange },
+    { label: "Em produção", value: String(inProduction.length), note: "Peças em produção ou revisão" },
+    { label: "Bloqueios", value: String(blockedAgenda.length), note: "Publicações paradas aguardando decisão" }
+  ];
+  document.getElementById("overviewMetrics").innerHTML = metrics.map(item => `
+    <div class="card">
+      <div class="metric-label">${escapeHtml(item.label)}</div>
+      <div class="metric-value">${escapeHtml(item.value)}</div>
+      <div class="metric-note">${escapeHtml(item.note)}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("weekTitle").textContent = `Esta semana · ${weekRange}`;
+  document.getElementById("weekSummary").innerHTML = thisWeek.length ? thisWeek.map(item => `
+    <div class="week-item">
+      <span class="week-date">${escapeHtml(item.date)}</span>
+      <span class="week-name">${escapeHtml(item.content)} <span class="muted">· ${escapeHtml(item.channel)} · ${escapeHtml(item.owner || "—")}</span></span>
+      <span>${statusPill(item.status)}</span>
+    </div>
+  `).join("") : `<p class="muted">Sem publicações datadas nesta semana.</p>`;
+
+  document.getElementById("nextDelivery").innerHTML = next ? `
+    <p class="strong">${escapeHtml(next.content)}</p>
+    <p class="muted">${escapeHtml(next.date)} · ${escapeHtml(next.channel)} · ${escapeHtml(next.owner || "—")}</p>
+    <p>${statusPill(next.status)}</p>
+    <p class="muted">${escapeHtml(next.note)}</p>
+  ` : `<p class="muted">Nenhuma publicação cadastrada.</p>`;
+
+  const blockers = [
+    ...blockedAgenda.map(item => ({ title: `${item.date} · ${item.content}`, info: item.note })),
+    ...data.deliveries.filter(item => item.status === "Bloqueado").map(item => ({ title: item.name, info: item.next }))
+  ];
+  document.getElementById("blockers").innerHTML = blockers.length ? blockers.map(item => `
+    <p><span class="strong">${escapeHtml(item.title)}</span><br><span class="muted">${escapeHtml(item.info)}</span></p>
+  `).join("") : `<p class="muted">Sem bloqueios ativos.</p>`;
+}
+
+function renderDeliveries() {
+  document.getElementById("deliveriesTable").innerHTML = data.deliveries.map((item, index) => `
+    <tr>
+      <td class="strong">${escapeHtml(item.name)}</td>
+      <td>${escapeHtml(item.owner)}</td>
+      <td>${escapeHtml(item.due)}</td>
+      <td>${statusPill(item.status)}</td>
+      <td>${escapeHtml(item.next)}</td>
+      <td class="edit-only"><button class="btn ghost" data-edit="delivery" data-index="${index}">Editar</button></td>
+    </tr>
+  `).join("");
+}
+
+function trilhaClass(trilha) {
+  return {
+    "Institucional": "t-institucional",
+    "Ananda": "t-ananda",
+    "Mafê": "t-mafe",
+    "Larumy": "t-larumy",
+    "Creators": "t-creators"
+  }[trilha] || "t-institucional";
+}
+
+function agendaRowHtml(item) {
+  const index = data.agenda.indexOf(item);
+  const trilha = item.trilha || "Institucional";
+  return `
+    <tr>
+      <td class="strong">${escapeHtml(item.date)}</td>
+      <td><span class="trilha ${trilhaClass(trilha)}">${escapeHtml(trilha)}</span></td>
+      <td>${escapeHtml(item.content)}</td>
+      <td>${escapeHtml(item.channel)}</td>
+      <td>${escapeHtml(item.goal)}</td>
+      <td>${escapeHtml(item.owner || "")}</td>
+      <td>${statusPill(item.status)}</td>
+      <td>${escapeHtml(item.note)}</td>
+      <td class="edit-only"><button class="btn ghost" data-edit="agenda" data-index="${index}">Editar</button></td>
+    </tr>`;
+}
+
+function renderAgenda() {
+  const q = (agendaFilter.q || "").toLowerCase();
+  const list = data.agenda.filter(item => {
+    const trilha = item.trilha || "Institucional";
+    if (agendaFilter.trilha !== "Todas" && trilha !== agendaFilter.trilha) return false;
+    if (agendaFilter.status !== "Todos" && item.status !== agendaFilter.status) return false;
+    if (q && !`${item.content} ${item.goal} ${item.note} ${item.owner || ""}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const groups = new Map();
+  const undated = [];
+  list.forEach(item => {
+    const wk = weekKeyOf(item);
+    if (wk === null) { undated.push(item); return; }
+    if (!groups.has(wk)) groups.set(wk, []);
+    groups.get(wk).push(item);
+  });
+
+  const current = currentMondayTime();
+  let html = "";
+  [...groups.keys()].sort((a, b) => a - b).forEach(key => {
+    const items = groups.get(key).sort((a, b) => parseBRDate(a.date) - parseBRDate(b.date));
+    const isCurrent = key === current;
+    html += `<tr class="week-row${isCurrent ? " week-current" : ""}"><td colspan="9">${weekLabel(key)} · ${items.length} publicação(ões)${isCurrent ? ' <span class="week-badge">ESTA SEMANA</span>' : ""}</td></tr>`;
+    html += items.map(agendaRowHtml).join("");
+  });
+  if (undated.length) {
+    html += `<tr class="week-row week-backlog"><td colspan="9">Sem data definida · backlog de creators · ${undated.length} itens</td></tr>`;
+    html += undated.map(agendaRowHtml).join("");
+  }
+  document.getElementById("agendaTable").innerHTML = html || `<tr><td colspan="9" class="muted">Nenhum item para os filtros atuais.</td></tr>`;
+
+  const countEl = document.getElementById("agendaCount");
+  if (countEl) countEl.textContent = `Mostrando ${list.length} de ${data.agenda.length}`;
+}
+
+function renderPerformance() {
+  document.getElementById("perfSnapshot").innerHTML = (data.perf || []).map((item, index) => `
+    <div class="card">
+      <div class="metric-label">${escapeHtml(item.label)}</div>
+      <div class="metric-value">${escapeHtml(item.value)}</div>
+      <div class="metric-note">${escapeHtml(item.note)}</div>
+      <button class="btn ghost edit-only" data-edit="perf" data-index="${index}">Editar</button>
+    </div>
+  `).join("");
+
+  document.getElementById("perfFormats").innerHTML = (data.perfFormats || []).map((item, index) => {
+    const v = parseFloat(String(item.views).replace(",", ".")) || 0;
+    const i = parseFloat(String(item.interactions).replace(",", ".")) || 0;
+    return `
+    <div class="fmt">
+      <div class="fmt-head">
+        <span class="strong">${escapeHtml(item.format)}</span>
+        <button class="btn ghost edit-only" data-edit="perfFormat" data-index="${index}">Editar</button>
+      </div>
+      <div class="bar-row"><span>Views</span><div class="bar"><div class="bar-fill cyan" style="width:${v}%"></div></div><span class="bar-val">${escapeHtml(item.views)}%</span></div>
+      <div class="bar-row"><span>Interações</span><div class="bar"><div class="bar-fill magenta" style="width:${i}%"></div></div><span class="bar-val">${escapeHtml(item.interactions)}%</span></div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("perfInsights").innerHTML = (data.perfInsights || []).map((item, index) => `
+    <div class="editorial-item">
+      <span>${escapeHtml(item.text)}</span>
+      <button class="btn ghost edit-only" data-edit="perfInsight" data-index="${index}">Editar</button>
+    </div>
+  `).join("");
+
+  document.getElementById("performanceTable").innerHTML = data.performance.map((item, index) => `
+    <tr>
+      <td class="strong">${escapeHtml(item.content)}</td>
+      <td>${escapeHtml(item.format)}</td>
+      <td>${escapeHtml(item.reach)}</td>
+      <td>${escapeHtml(item.interactions)}</td>
+      <td>${escapeHtml(item.signal)}</td>
+      <td>${escapeHtml(item.decision)}</td>
+      <td class="edit-only"><button class="btn ghost" data-edit="performance" data-index="${index}">Editar</button></td>
+    </tr>
+  `).join("");
+}
+
+function renderFiles() {
+  document.getElementById("filesGrid").innerHTML = data.files.map((item, index) => `
+    <article class="card">
+      <h3 class="card-title">${escapeHtml(item.title)}</h3>
+      <p>${statusPill(item.status)}</p>
+      <p class="muted">${escapeHtml(item.note)}</p>
+      <p><a class="file-link" href="${escapeHtml(item.path)}" target="_blank" rel="noopener">Abrir arquivo</a></p>
+      <button class="btn ghost edit-only" data-edit="file" data-index="${index}">Editar</button>
+    </article>
+  `).join("");
+}
+
+function renderEditorial() {
+  document.getElementById("editorialList").innerHTML = data.editorial.map((item, index) => `
+    <div class="editorial-item">
+      <span>${escapeHtml(item.text)}</span>
+      <button class="btn ghost edit-only" data-edit="editorial" data-index="${index}">Editar</button>
+    </div>
+  `).join("");
+}
+
+function render() {
+  document.body.classList.toggle("editing", editing);
+  document.getElementById("editToggle").textContent = editing ? "Desativar edição" : "Ativar edição";
+  renderOverview();
+  renderDeliveries();
+  renderAgenda();
+  renderPerformance();
+  renderFiles();
+  renderEditorial();
+  document.getElementById("lastSaved").textContent = `Última atualização local: ${data.updatedAt}.`;
+}
+
+function fillSupabaseForm() {
+  document.getElementById("supabaseUrl").value = supabaseConfig.url || "";
+  document.getElementById("supabaseAnonKey").value = supabaseConfig.anonKey || "";
+  document.getElementById("supabaseSlug").value = supabaseConfig.dashboardSlug || "gogame-2026-operacional";
+}
+
+function fieldsFor(type) {
+  return {
+    delivery: [["name", "Entrega"], ["owner", "Responsável"], ["due", "Prazo"], ["status", "Status", "select"], ["next", "Aprovação / decisão", "textarea"]],
+    agenda: [["date", "Data"], ["trilha", "Trilha", "select", ["Institucional", "Ananda", "Mafê", "Larumy", "Creators"]], ["content", "Conteúdo"], ["channel", "Formato"], ["goal", "Objetivo / CTA"], ["owner", "Responsável"], ["status", "Status", "select"], ["note", "Observação", "textarea"]],
+    editorial: [["text", "Diretriz", "textarea"]],
+    perf: [["label", "Rótulo"], ["value", "Valor"], ["note", "Nota"]],
+    perfFormat: [["format", "Formato"], ["views", "% Visualizações"], ["interactions", "% Interações"]],
+    perfInsight: [["text", "Leitura", "textarea"]],
+    performance: [["content", "Conteúdo"], ["format", "Formato"], ["reach", "Alcance"], ["interactions", "Interações"], ["signal", "Sinal forte", "textarea"], ["decision", "Decisão", "textarea"]],
+    file: [["title", "Título"], ["status", "Status", "select"], ["path", "Caminho/URL"], ["note", "Nota", "textarea"]]
+  }[type];
+}
+
+function collectionFor(type) {
+  return {
+    delivery: data.deliveries,
+    agenda: data.agenda,
+    editorial: data.editorial,
+    perf: data.perf,
+    perfFormat: data.perfFormats,
+    perfInsight: data.perfInsights,
+    performance: data.performance,
+    file: data.files
+  }[type];
+}
+
+function openEditor(type, index = null) {
+  currentEdit = { type, index };
+  const fields = fieldsFor(type);
+  const collection = collectionFor(type);
+  const item = index === null ? Object.fromEntries(fields.map(([key]) => [key, ""])) : collection[index];
+  document.getElementById("modalTitle").textContent = index === null ? "Adicionar item" : "Editar item";
+  document.getElementById("editForm").innerHTML = `
+    <div class="form-grid">
+      ${fields.map(([key, label, kind, options]) => {
+        if (kind === "textarea") {
+          return `<label>${label}<textarea name="${key}">${escapeHtml(item[key])}</textarea></label>`;
+        }
+        if (kind === "select") {
+          const opts = options || Object.keys(STATUS_CLASS);
+          return `<label>${label}<select name="${key}">
+            ${opts.map(opt => `<option ${item[key] === opt ? "selected" : ""}>${opt}</option>`).join("")}
+          </select></label>`;
+        }
+        return `<label>${label}<input name="${key}" value="${escapeHtml(item[key])}"></label>`;
+      }).join("")}
+    </div>
+    <div class="top-actions">
+      <button class="btn primary" type="submit">Salvar</button>
+      ${index === null ? "" : `<button class="btn ghost" type="button" id="deleteItem">Excluir</button>`}
+    </div>
+  `;
+  document.getElementById("modal").classList.add("open");
+}
+
+function closeEditor() {
+  document.getElementById("modal").classList.remove("open");
+  currentEdit = null;
+}
+
+document.querySelector(".nav").addEventListener("click", event => {
+  const button = event.target.closest("button[data-tab]");
+  if (!button) return;
+  document.querySelectorAll(".nav button").forEach(item => item.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(item => item.classList.remove("active"));
+  button.classList.add("active");
+  document.getElementById(button.dataset.tab).classList.add("active");
+});
+
+document.getElementById("filterTrilha").addEventListener("change", event => {
+  agendaFilter.trilha = event.target.value;
+  renderAgenda();
+});
+
+document.getElementById("filterStatus").addEventListener("change", event => {
+  agendaFilter.status = event.target.value;
+  renderAgenda();
+});
+
+document.getElementById("filterSearch").addEventListener("input", event => {
+  agendaFilter.q = event.target.value;
+  renderAgenda();
+});
+
+document.body.addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  const addButton = event.target.closest("[data-add]");
+  if (editButton) openEditor(editButton.dataset.edit, Number(editButton.dataset.index));
+  if (addButton) openEditor(addButton.dataset.add);
+});
+
+document.getElementById("editToggle").addEventListener("click", () => {
+  if (supabaseClient && !supabaseSession) {
+    document.getElementById("supabaseModal").classList.add("open");
+    setSyncStatus("Faça login para editar", "error");
+    return;
+  }
+  editing = !editing;
+  render();
+});
+
+document.getElementById("supabaseBtn").addEventListener("click", () => {
+  fillSupabaseForm();
+  document.getElementById("supabaseModal").classList.add("open");
+});
+
+document.getElementById("closeSupabaseModal").addEventListener("click", () => {
+  document.getElementById("supabaseModal").classList.remove("open");
+});
+
+document.getElementById("supabaseModal").addEventListener("click", event => {
+  if (event.target.id === "supabaseModal") {
+    document.getElementById("supabaseModal").classList.remove("open");
+  }
+});
+
+document.getElementById("supabaseForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const settings = {
+    url: String(formData.get("url") || "").trim(),
+    anonKey: String(formData.get("anonKey") || "").trim(),
+    dashboardSlug: String(formData.get("dashboardSlug") || "gogame-2026-operacional").trim()
+  };
+  localStorage.setItem(SUPABASE_SETTINGS_KEY, JSON.stringify(settings, null, 2));
+  supabaseConfig = settings;
+  supabaseClient = null;
+  realtimeChannel = null;
+  await initSupabase();
+});
+
+document.getElementById("loginSupabase").addEventListener("click", async () => {
+  if (!supabaseClient) await initSupabase();
+  if (!supabaseClient) {
+    setSyncStatus("Configure o Supabase", "error");
+    return;
+  }
+  const email = document.getElementById("supabaseEmail").value.trim();
+  if (!email) {
+    setSyncStatus("Informe o email", "error");
+    return;
+  }
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  if (error) {
+    console.error(error);
+    setSyncStatus("Erro no magic link", "error");
+  } else {
+    setSyncStatus("Magic link enviado", "online");
+  }
+});
+
+document.getElementById("logoutSupabase").addEventListener("click", async () => {
+  if (supabaseClient) await supabaseClient.auth.signOut();
+  supabaseSession = null;
+  editing = false;
+  setSyncStatus("Supabase leitura", supabaseClient ? "online" : "offline");
+  render();
+});
+
+document.getElementById("closeModal").addEventListener("click", closeEditor);
+document.getElementById("modal").addEventListener("click", event => {
+  if (event.target.id === "modal") closeEditor();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  closeEditor();
+  document.getElementById("supabaseModal").classList.remove("open");
+});
+
+document.getElementById("editForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const item = Object.fromEntries(formData.entries());
+  const collection = collectionFor(currentEdit.type);
+  if (currentEdit.index === null) collection.push(item);
+  else collection[currentEdit.index] = item;
+  closeEditor();
+  saveData();
+});
+
+document.getElementById("editForm").addEventListener("click", event => {
+  if (event.target.id !== "deleteItem" || !currentEdit) return;
+  const collection = collectionFor(currentEdit.type);
+  collection.splice(currentEdit.index, 1);
+  closeEditor();
+  saveData();
+});
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "gogame-dashboard-dados.json";
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+
+document.getElementById("importFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      data = { ...structuredClone(defaultData), ...JSON.parse(reader.result) };
+      saveData();
+    } catch {
+      alert("Não foi possível importar o JSON. Verifique o arquivo.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+initSupabase();
+</script>
+</body>
+</html>
