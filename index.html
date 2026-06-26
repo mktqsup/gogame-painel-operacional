@@ -909,6 +909,31 @@
       font-size: 27px;
     }
   }
+  /* Estratégia: metas escalonadas + funil do cliente */
+  .goal-tiers { display: grid; gap: 14px; }
+  .goal-tier { display: grid; gap: 6px; }
+  .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .goal-rank { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .goal-val { font-family: var(--font-display); font-size: 20px; color: var(--text); }
+  .goal-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.06); overflow: hidden; }
+  .goal-bar span { display: block; height: 100%; border-radius: 999px; }
+  .goal-bar .g1 { background: linear-gradient(90deg, var(--cyan), #67E8F9); }
+  .goal-bar .g2 { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+  .goal-bar .g3 { background: linear-gradient(90deg, var(--magenta), var(--green-soft)); }
+
+  .journey { display: grid; }
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(168,164,215,.12); }
+  .step:last-child { border-bottom: 0; }
+  .step-n { width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; font-family: var(--font-display); font-size: 16px; color: #06120a; }
+  .step-c { display: grid; gap: 3px; min-width: 0; }
+  .step-c strong { color: var(--text); font-size: 15px; }
+  .step-c span { color: rgba(247,245,255,.72); font-size: 13px; line-height: 1.45; }
+  .s1 .step-n { background: var(--cyan); }
+  .s2 .step-n { background: #67E8F9; }
+  .s3 .step-n { background: var(--violet); color: #fff; }
+  .s4 .step-n { background: #a78bfa; color: #1a1035; }
+  .s5 .step-n { background: var(--magenta); color: #fff; }
+  .s6 .step-n { background: var(--green-soft); }
 </style>
 </head>
 <body>
@@ -1135,13 +1160,21 @@
       </div>
       <div class="grid cols-2">
         <div class="card">
-          <h3 class="card-title">Direção</h3>
-          <p class="muted">Marca futurista, tecnológica, premium e proprietária. O painel evita excesso visual para priorizar leitura, decisão e andamento.</p>
-          <div class="chips">
-            <span class="chip">Base escura</span>
-            <span class="chip">Neon controlado</span>
-            <span class="chip">Dados claros</span>
-            <span class="chip">Sem ruído operacional para cliente</span>
+          <h3 class="card-title">Meta de vendas — 1º lote</h3>
+          <p class="muted" style="margin:0 0 14px">Ingressos na abertura do lote promocional (03/07).</p>
+          <div class="goal-tiers">
+            <div class="goal-tier">
+              <div class="goal-head"><span class="goal-rank">Meta 1</span><span class="goal-val">R$ 140k+</span></div>
+              <div class="goal-bar"><span class="g1" style="width:70%"></span></div>
+            </div>
+            <div class="goal-tier">
+              <div class="goal-head"><span class="goal-rank">Meta 2</span><span class="goal-val">R$ 170k+</span></div>
+              <div class="goal-bar"><span class="g2" style="width:85%"></span></div>
+            </div>
+            <div class="goal-tier">
+              <div class="goal-head"><span class="goal-rank">Meta 3 · objetivo</span><span class="goal-val">R$ 200k+</span></div>
+              <div class="goal-bar"><span class="g3" style="width:100%"></span></div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -1152,6 +1185,18 @@
             <span class="chip">@gogamefestival</span>
             <span class="chip">O sistema voltou</span>
           </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Caminho do cliente — da reativação à venda</h3>
+        <p class="muted" style="margin:0 0 10px">A campanha conduz o público por 6 etapas, cada conteúdo movendo para a próxima.</p>
+        <div class="journey">
+          <div class="step s1"><div class="step-n">1</div><div class="step-c"><strong>Reativação do público</strong><span>Teaser "O Sistema Voltou" + ativação da comunidade reacenderam o evento — engajamento acima da edição anterior.</span></div></div>
+          <div class="step s2"><div class="step-n">2</div><div class="step-c"><strong>Construção de relacionamento</strong><span>Enquetes ("quem querem ver?") e o desafio da data viraram seguidores em participantes ativos.</span></div></div>
+          <div class="step s3"><div class="step-n">3</div><div class="step-c"><strong>Aquecimento para o lançamento</strong><span>Teaser + anúncio oficial da data + contagem regressiva e explicação dos ingressos.</span></div></div>
+          <div class="step s4"><div class="step-n">4</div><div class="step-c"><strong>Fundo de funil</strong><span>Memes, trends, benefícios da comunidade e collabs com creators ampliam alcance e validam socialmente.</span></div></div>
+          <div class="step s5"><div class="step-n">5</div><div class="step-c"><strong>Conversão · 03/07</strong><span>Abertura do lote promocional: oferta clara, vantagem do lote e senso de urgência.</span></div></div>
+          <div class="step s6"><div class="step-n">6</div><div class="step-c"><strong>Sustentação das vendas</strong><span>Competições (cosplay/K-pop), cultura asiática e creators mantêm o interesse durante todo o lote.</span></div></div>
         </div>
       </div>
       <div class="card">
