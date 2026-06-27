@@ -491,6 +491,81 @@
     background: rgba(0,224,0,.10);
   }
 
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .shortcut-btn {
+    display: grid;
+    gap: 6px;
+    min-height: 96px;
+    text-align: left;
+    border: 1px solid rgba(168,164,215,.16);
+    border-radius: 14px;
+    color: var(--text);
+    background: rgba(255,255,255,.035);
+    padding: 13px;
+  }
+
+  .shortcut-btn:hover {
+    border-color: rgba(8,217,255,.55);
+    background: rgba(8,217,255,.07);
+  }
+
+  .shortcut-title {
+    font-weight: 850;
+  }
+
+  .shortcut-note {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .agenda-tools {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 14px;
+  }
+
+  .tool-label {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .dashboard-signature {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-top: 26px;
+    border: 1px solid rgba(85,255,103,.22);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(0,224,0,.07), rgba(8,217,255,.055));
+    padding: 16px 18px;
+  }
+
+  .signature-mark {
+    color: var(--green-soft);
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: .04em;
+  }
+
+  .signature-text {
+    color: rgba(247,245,255,.72);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .signature-text strong {
+    color: var(--text);
+  }
+
   .link-stack {
     display: flex;
     flex-wrap: wrap;
@@ -885,8 +960,14 @@
     .grid.cols-3,
     .grid.cols-2,
     .form-grid,
-    .signal-grid {
+    .signal-grid,
+    .shortcut-grid {
       grid-template-columns: 1fr;
+    }
+
+    .dashboard-signature {
+      align-items: flex-start;
+      flex-direction: column;
     }
   }
 
@@ -981,12 +1062,12 @@
   </header>
 
   <nav class="nav" aria-label="Navegação principal">
-    <button class="active" data-tab="overview">01 Visão Geral</button>
-    <button data-tab="deliveries">02 Produção</button>
-    <button data-tab="agenda">03 Agenda</button>
-    <button data-tab="performance">04 Desempenho</button>
-    <button data-tab="files">05 Arquivos Aprovados</button>
-    <button data-tab="strategy">06 Estratégia</button>
+    <button class="active" data-tab="overview">Resumo</button>
+    <button data-tab="agenda">Agenda</button>
+    <button data-tab="deliveries">Produção</button>
+    <button data-tab="performance">Desempenho</button>
+    <button data-tab="files">Arquivos</button>
+    <button data-tab="strategy">Estratégia</button>
   </nav>
 
   <main>
@@ -1002,11 +1083,32 @@
         <div class="command-head">
           <div>
             <h3 class="card-title">Centro de comando</h3>
-            <p>Leitura operacional para checkpoint rapido com equipe e cliente.</p>
+            <p>Leitura operacional para checkpoint rápido com equipe e cliente.</p>
           </div>
           <button class="btn ghost" type="button" data-copy-summary>Copiar resumo</button>
         </div>
         <div class="signal-grid" id="actionSignals"></div>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Ações rápidas</h3>
+        <div class="shortcut-grid">
+          <button class="shortcut-btn" type="button" data-go-tab="agenda" data-agenda-preset="today">
+            <span class="shortcut-title">Ver hoje</span>
+            <span class="shortcut-note">Abre a agenda filtrada no foco do dia.</span>
+          </button>
+          <button class="shortcut-btn" type="button" data-go-tab="agenda" data-agenda-preset="overdue">
+            <span class="shortcut-title">Checar atrasos</span>
+            <span class="shortcut-note">Mostra itens abertos que ficaram para trás.</span>
+          </button>
+          <button class="shortcut-btn" type="button" data-go-tab="performance">
+            <span class="shortcut-title">Ver desempenho</span>
+            <span class="shortcut-note">Vai para Instagram, comunidade e sinais de crescimento.</span>
+          </button>
+          <button class="shortcut-btn" type="button" data-go-tab="files">
+            <span class="shortcut-title">Abrir aprovados</span>
+            <span class="shortcut-note">Acessa arquivos finais e materiais liberados.</span>
+          </button>
+        </div>
       </div>
       <div class="card">
         <h3 class="card-title" id="weekTitle">Esta semana</h3>
@@ -1080,13 +1182,28 @@
         <input id="filterSearch" type="search" placeholder="Buscar conteúdo...">
         <span class="count" id="agendaCount"></span>
       </div>
-      <div class="quick-filters" aria-label="Atalhos de trilha">
-        <button type="button" data-trilha-quick="Todas">Todos</button>
-        <button type="button" data-trilha-quick="Henrique">Minha trilha: Henrique</button>
-        <button type="button" data-trilha-quick="Nathan">Minha trilha: Nathan</button>
-        <button type="button" data-trilha-quick="Ananda">Minha trilha: Ananda</button>
-        <button type="button" data-trilha-quick="Mafê">Minha trilha: Mafê</button>
-        <button type="button" data-trilha-quick="Larumy">Minha trilha: Larumy</button>
+      <div class="agenda-tools">
+        <div>
+          <div class="tool-label">Situação</div>
+          <div class="quick-filters" aria-label="Atalhos de situação">
+            <button type="button" data-agenda-preset="all">Tudo</button>
+            <button type="button" data-agenda-preset="today">Hoje</button>
+            <button type="button" data-agenda-preset="next7">Próximos 7 dias</button>
+            <button type="button" data-agenda-preset="overdue">Atrasados</button>
+            <button type="button" data-agenda-preset="published">Publicado</button>
+          </div>
+        </div>
+        <div>
+          <div class="tool-label">Minha trilha</div>
+          <div class="quick-filters" aria-label="Atalhos de trilha">
+            <button type="button" data-trilha-quick="Todas">Todos</button>
+            <button type="button" data-trilha-quick="Henrique">Henrique</button>
+            <button type="button" data-trilha-quick="Nathan">Nathan</button>
+            <button type="button" data-trilha-quick="Ananda">Ananda</button>
+            <button type="button" data-trilha-quick="Mafê">Mafê</button>
+            <button type="button" data-trilha-quick="Larumy">Larumy</button>
+          </div>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -1239,6 +1356,13 @@
   </main>
 
   <div class="footer-note" id="lastSaved"></div>
+  <footer class="dashboard-signature" aria-label="Assinatura oficial QSUP">
+    <div class="signature-mark">QSUP</div>
+    <div class="signature-text">
+      <strong>Painel operacional oficial.</strong><br>
+      Curadoria, estratégia e inteligência de execução por QSUP Criativos.
+    </div>
+  </footer>
 </div>
 
 <div class="modal" id="modal">
@@ -1410,7 +1534,7 @@ let supabaseSession = null;
 let remoteReady = false;
 let remoteRowId = null;
 let realtimeChannel = null;
-let agendaFilter = { trilha: "Todas", status: "Todos", q: "" };
+let agendaFilter = { trilha: "Todas", status: "Todos", q: "", view: "all" };
 let teamMode = false;
 
 function loadLocalData() {
@@ -1744,7 +1868,9 @@ async function copyExecutiveSummary() {
 function renderOverview() {
   const agenda = data.agenda;
   const blockedAgenda = agenda.filter(item => item.status === "Bloqueado");
-  const inProduction = agenda.filter(item => item.status === "Em produção" || item.status === "Em revisão");
+  const blockedDeliveries = data.deliveries.filter(item => item.status === "Bloqueado");
+  const publishedAgenda = agenda.filter(item => item.status === "Publicado");
+  const overdueAgenda = agenda.filter(isOverdueItem);
   const next = nextAgendaItem();
 
   const current = currentMondayTime();
@@ -1754,10 +1880,10 @@ function renderOverview() {
   const weekRange = weekLabel(current).replace("Semana de ", "");
 
   const metrics = [
-    { label: "Próxima publicação", value: next ? next.date : "—", note: next ? next.content : "Agenda vazia" },
+    { label: "Próximo foco", value: next ? next.date : "—", note: next ? next.content : "Agenda vazia" },
     { label: "Publicações esta semana", value: String(thisWeek.length), note: weekRange },
-    { label: "Em produção", value: String(inProduction.length), note: "Peças em produção ou revisão" },
-    { label: "Bloqueios", value: String(blockedAgenda.length), note: "Publicações paradas aguardando decisão" }
+    { label: "Publicadas", value: String(publishedAgenda.length), note: "Itens já marcados como publicados" },
+    { label: "Atenção", value: String(overdueAgenda.length + blockedAgenda.length + blockedDeliveries.length), note: "Atrasos e decisões pendentes" }
   ];
   document.getElementById("overviewMetrics").innerHTML = metrics.map(item => `
     <div class="card">
@@ -1787,7 +1913,7 @@ function renderOverview() {
 
   const blockers = [
     ...blockedAgenda.map(item => ({ title: `${item.date} · ${item.content}`, info: item.note })),
-    ...data.deliveries.filter(item => item.status === "Bloqueado").map(item => ({ title: item.name, info: item.next }))
+    ...blockedDeliveries.map(item => ({ title: item.name, info: item.next }))
   ];
   document.getElementById("blockers").innerHTML = blockers.length ? blockers.map(item => `
     <p><span class="strong">${escapeHtml(item.title)}</span><br><span class="muted">${escapeHtml(item.info)}</span></p>
@@ -1857,9 +1983,41 @@ function agendaLinksHtml(item) {
   `).join("")}</div>` : `<span class="muted">—</span>`;
 }
 
+function itemMatchesAgendaView(item) {
+  const days = daysFromToday(item);
+  if (agendaFilter.view === "today") return days === 0;
+  if (agendaFilter.view === "next7") return days !== null && days >= 0 && days <= 7 && isOpenItem(item);
+  if (agendaFilter.view === "overdue") return isOverdueItem(item);
+  if (agendaFilter.view === "published") return item.status === "Publicado";
+  return true;
+}
+
+function applyAgendaPreset(preset = "all") {
+  agendaFilter.view = preset;
+  if (preset === "published") {
+    agendaFilter.status = "Publicado";
+  } else {
+    agendaFilter.status = "Todos";
+  }
+  document.getElementById("filterStatus").value = agendaFilter.status;
+  renderAgenda();
+}
+
+function switchTab(tabId) {
+  const button = document.querySelector(`.nav button[data-tab="${tabId}"]`);
+  const section = document.getElementById(tabId);
+  if (!button || !section) return;
+  document.querySelectorAll(".nav button").forEach(item => item.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(item => item.classList.remove("active"));
+  button.classList.add("active");
+  section.classList.add("active");
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function renderAgenda() {
   const q = (agendaFilter.q || "").toLowerCase();
   const list = data.agenda.filter(item => {
+    if (!itemMatchesAgendaView(item)) return false;
     if (!itemMatchesTrilha(item, agendaFilter.trilha)) return false;
     if (agendaFilter.status !== "Todos" && item.status !== agendaFilter.status) return false;
     if (q && !`${item.content} ${item.goal} ${item.note} ${item.owner || ""} ${item.trilha || ""}`.toLowerCase().includes(q)) return false;
@@ -1893,6 +2051,9 @@ function renderAgenda() {
   if (countEl) countEl.textContent = `Mostrando ${list.length} de ${data.agenda.length}`;
   document.querySelectorAll("[data-trilha-quick]").forEach(button => {
     button.classList.toggle("active", button.dataset.trilhaQuick === agendaFilter.trilha);
+  });
+  document.querySelectorAll("[data-agenda-preset]").forEach(button => {
+    button.classList.toggle("active", button.dataset.agendaPreset === agendaFilter.view);
   });
 }
 
@@ -2080,10 +2241,7 @@ function closeEditor() {
 document.querySelector(".nav").addEventListener("click", event => {
   const button = event.target.closest("button[data-tab]");
   if (!button) return;
-  document.querySelectorAll(".nav button").forEach(item => item.classList.remove("active"));
-  document.querySelectorAll(".section").forEach(item => item.classList.remove("active"));
-  button.classList.add("active");
-  document.getElementById(button.dataset.tab).classList.add("active");
+  switchTab(button.dataset.tab);
 });
 
 document.getElementById("filterTrilha").addEventListener("change", event => {
@@ -2093,6 +2251,7 @@ document.getElementById("filterTrilha").addEventListener("change", event => {
 
 document.getElementById("filterStatus").addEventListener("change", event => {
   agendaFilter.status = event.target.value;
+  if (event.target.value !== "Publicado") agendaFilter.view = "all";
   renderAgenda();
 });
 
@@ -2101,21 +2260,26 @@ document.getElementById("filterSearch").addEventListener("input", event => {
   renderAgenda();
 });
 
-document.querySelector(".quick-filters").addEventListener("click", event => {
-  const button = event.target.closest("[data-trilha-quick]");
-  if (!button) return;
-  agendaFilter.trilha = button.dataset.trilhaQuick;
-  document.getElementById("filterTrilha").value = agendaFilter.trilha;
-  renderAgenda();
-});
-
 document.body.addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");
   const addButton = event.target.closest("[data-add]");
   const summaryButton = event.target.closest("[data-copy-summary]");
+  const tabButton = event.target.closest("[data-go-tab]");
+  const agendaPresetButton = event.target.closest("[data-agenda-preset]");
+  const trilhaButton = event.target.closest("[data-trilha-quick]");
   if (editButton) openEditor(editButton.dataset.edit, Number(editButton.dataset.index));
   if (addButton) openEditor(addButton.dataset.add);
   if (summaryButton) copyExecutiveSummary();
+  if (agendaPresetButton) applyAgendaPreset(agendaPresetButton.dataset.agendaPreset);
+  if (trilhaButton) {
+    agendaFilter.trilha = trilhaButton.dataset.trilhaQuick;
+    document.getElementById("filterTrilha").value = agendaFilter.trilha;
+    renderAgenda();
+  }
+  if (tabButton) {
+    switchTab(tabButton.dataset.goTab);
+    if (tabButton.dataset.agendaPreset) applyAgendaPreset(tabButton.dataset.agendaPreset);
+  }
 });
 
 document.getElementById("teamModeToggle").addEventListener("click", () => {
