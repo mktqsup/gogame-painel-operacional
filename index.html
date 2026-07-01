@@ -1035,6 +1035,17 @@
     .growth-row { grid-template-columns: 1fr auto; }
     .growth-nums { grid-column: 1 / -1; order: 3; font-size: 13px; }
   }
+  .aud-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px 28px;
+  }
+  .aud-title {
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -1254,6 +1265,15 @@
           </div>
           <div class="editorial-list" id="perfInsights"></div>
         </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <div>
+            <h3 class="card-title">Audiência (@gogamefestival)</h3>
+            <p class="muted" style="margin:4px 0 0">Quem é o público — dados de junho</p>
+          </div>
+        </div>
+        <div id="audienceBody"></div>
       </div>
       <div class="toolbar" style="margin-top:8px">
         <div>
@@ -2101,6 +2121,28 @@ function renderPerformance() {
   `).join("");
 
   renderGrowth();
+  renderAudience();
+}
+
+function audienceBars(items, cls) {
+  return (items || []).map(i => {
+    const w = parseFloat(String(i.pct).replace(",", ".")) || 0;
+    return `<div class="bar-row"><span>${escapeHtml(i.label)}</span><div class="bar"><div class="bar-fill ${cls}" style="width:${w}%"></div></div><span class="bar-val">${escapeHtml(i.pct)}%</span></div>`;
+  }).join("");
+}
+
+function renderAudience() {
+  const el = document.getElementById("audienceBody");
+  if (!el) return;
+  const a = data.audience;
+  if (!a) { el.innerHTML = `<p class="muted">Sem dados de audiência.</p>`; return; }
+  el.innerHTML = `
+    <div class="aud-grid">
+      <div><div class="aud-title">Gênero</div>${audienceBars(a.gender, "cyan")}</div>
+      <div><div class="aud-title">Faixa etária</div>${audienceBars(a.ages, "magenta")}</div>
+      <div><div class="aud-title">Cidades</div>${audienceBars(a.cities, "cyan")}</div>
+    </div>
+    <p class="muted" style="margin-top:12px">🌎 ${escapeHtml(a.country || "")} &nbsp;·&nbsp; ⏰ Melhores horários: ${escapeHtml(a.bestTimes || "")}</p>`;
 }
 
 function growthNum(value) {
