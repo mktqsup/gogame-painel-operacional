@@ -1046,6 +1046,58 @@
     margin-bottom: 8px;
     font-size: 14px;
   }
+
+  /* Countdown de marcos (Visão Geral) */
+  .countdown-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 0 0 14px;
+  }
+  .countdown {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid rgba(0,224,0,.35);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(0,224,0,.10), rgba(8,217,255,.05));
+  }
+  .countdown .cd-num {
+    font-family: var(--font-display);
+    font-size: 30px;
+    color: var(--green-soft);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .countdown .cd-label { font-size: 13px; color: rgba(247,245,255,.82); line-height: 1.4; }
+  .countdown.cd-magenta { border-color: rgba(255,0,212,.35); background: linear-gradient(135deg, rgba(255,0,212,.10), rgba(123,87,255,.05)); }
+  .countdown.cd-magenta .cd-num { color: var(--magenta); }
+
+  /* Semanas colapsáveis na agenda */
+  #agenda tr.week-row td { cursor: pointer; user-select: none; }
+  .week-caret { display: inline-block; margin-right: 8px; transition: transform .15s; }
+  tr.week-collapsed .week-caret { transform: rotate(-90deg); }
+  .week-hint { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 8px; }
+
+  /* Voltar ao topo */
+  .backtop {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 60;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid rgba(8,217,255,.4);
+    background: rgba(13,10,30,.95);
+    color: var(--cyan);
+    font-size: 18px;
+    display: none;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+  .backtop.show { display: block; }
 </style>
 </head>
 <body>
@@ -1089,6 +1141,7 @@
           <p>Status executivo para decisões rápidas.</p>
         </div>
       </div>
+      <div class="countdown-strip" id="countdownStrip"></div>
       <div class="grid cols-4" id="overviewMetrics"></div>
       <div class="card command-center">
         <div class="command-head">
@@ -1376,6 +1429,7 @@
   </main>
 
   <div class="footer-note" id="lastSaved"></div>
+  <button class="backtop" id="backTop" type="button" title="Voltar ao topo" aria-label="Voltar ao topo">↑</button>
   <footer class="dashboard-signature" aria-label="Assinatura oficial QSUP">
     <div class="signature-mark">QSUP</div>
     <div class="signature-text">
@@ -1555,6 +1609,7 @@ let remoteReady = false;
 let remoteRowId = null;
 let realtimeChannel = null;
 let agendaFilter = { trilha: "Todas", status: "Todos", q: "", view: "all" };
+let weekCollapse = null;
 let teamMode = false;
 
 function loadLocalData() {
@@ -1885,6 +1940,39 @@ async function copyExecutiveSummary() {
   }
 }
 
+function daysUntil(y, m, d) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return Math.round((new Date(y, m - 1, d) - today) / 86400000);
+}
+
+function renderCountdown() {
+  const el = document.getElementById("countdownStrip");
+  if (!el) return;
+  const cards = [];
+
+  const cart = daysUntil(2026, 7, 3);
+  const loteEnd = daysUntil(2026, 7, 12);
+  if (cart > 0) {
+    cards.push({ num: cart === 1 ? "1 dia" : cart + " dias", label: "para a <strong>abertura do carrinho</strong> · 03/07 às 00:01 (lote promocional)", cls: "" });
+  } else if (loteEnd >= 0) {
+    cards.push({ num: cart === 0 ? "É HOJE" : "ABERTO", label: "<strong>Carrinho aberto!</strong> Lote promocional até 12/07 · garanta no Sympla", cls: "" });
+  }
+
+  const evt = daysUntil(2026, 9, 11);
+  if (evt > 0) {
+    cards.push({ num: evt + " dias", label: "para o <strong>GO GAME FESTIVAL 2026</strong> · 11, 12 e 13/09 · Passeio das Águas", cls: "cd-magenta" });
+  } else if (evt >= -2) {
+    cards.push({ num: "É AGORA", label: "<strong>GO GAME FESTIVAL 2026</strong> em andamento · 11–13/09", cls: "cd-magenta" });
+  }
+
+  el.innerHTML = cards.map(c => `
+    <div class="countdown ${c.cls}">
+      <span class="cd-num">${c.num}</span>
+      <span class="cd-label">${c.label}</span>
+    </div>
+  `).join("");
+}
+
 function renderOverview() {
   const agenda = data.agenda;
   const blockedAgenda = agenda.filter(item => item.status === "Bloqueado");
@@ -1892,6 +1980,8 @@ function renderOverview() {
   const publishedAgenda = agenda.filter(item => item.status === "Publicado");
   const overdueAgenda = agenda.filter(isOverdueItem);
   const next = nextAgendaItem();
+
+  renderCountdown();
 
   const current = currentMondayTime();
   const thisWeek = agenda
@@ -2054,16 +2144,26 @@ function renderAgenda() {
   });
 
   const current = currentMondayTime();
+  // Semanas passadas e backlog começam recolhidos (só na visão padrão, sem filtros)
+  if (weekCollapse === null) {
+    weekCollapse = new Set(["backlog"]);
+    [...groups.keys()].forEach(k => { if (k < current) weekCollapse.add(String(k)); });
+  }
+  const filtersActive = agendaFilter.trilha !== "Todas" || agendaFilter.status !== "Todos" || (agendaFilter.q || "") !== "" || agendaFilter.view !== "all";
+  const isCollapsed = key => !filtersActive && weekCollapse.has(String(key));
+
   let html = "";
   [...groups.keys()].sort((a, b) => a - b).forEach(key => {
     const items = groups.get(key).sort((a, b) => parseBRDate(a.date) - parseBRDate(b.date));
     const isCurrent = key === current;
-    html += `<tr class="week-row${isCurrent ? " week-current" : ""}"><td colspan="10">${weekLabel(key)} · ${items.length} publicação(ões)${isCurrent ? ' <span class="week-badge">ESTA SEMANA</span>' : ""}</td></tr>`;
-    html += items.map(agendaRowHtml).join("");
+    const closed = isCollapsed(key);
+    html += `<tr class="week-row${isCurrent ? " week-current" : ""}${closed ? " week-collapsed" : ""}" data-week-key="${key}"><td colspan="10"><span class="week-caret">▾</span>${weekLabel(key)} · ${items.length} publicação(ões)${isCurrent ? ' <span class="week-badge">ESTA SEMANA</span>' : ""}${closed ? ' <span class="week-hint">clique para ver</span>' : ""}</td></tr>`;
+    if (!closed) html += items.map(agendaRowHtml).join("");
   });
   if (undated.length) {
-    html += `<tr class="week-row week-backlog"><td colspan="10">Sem data definida · backlog de creators · ${undated.length} itens</td></tr>`;
-    html += undated.map(agendaRowHtml).join("");
+    const closed = isCollapsed("backlog");
+    html += `<tr class="week-row week-backlog${closed ? " week-collapsed" : ""}" data-week-key="backlog"><td colspan="10"><span class="week-caret">▾</span>Sem data definida · backlog de creators · ${undated.length} itens${closed ? ' <span class="week-hint">clique para ver</span>' : ""}</td></tr>`;
+    if (!closed) html += undated.map(agendaRowHtml).join("");
   }
   document.getElementById("agendaTable").innerHTML = html || `<tr><td colspan="10" class="muted">Nenhum item para os filtros atuais.</td></tr>`;
 
@@ -2458,6 +2558,24 @@ document.getElementById("importFile").addEventListener("change", event => {
   };
   reader.readAsText(file);
 });
+
+// Recolher/expandir semanas na agenda
+document.getElementById("agendaTable").addEventListener("click", event => {
+  const row = event.target.closest("tr.week-row[data-week-key]");
+  if (!row) return;
+  const key = row.dataset.weekKey;
+  if (weekCollapse === null) weekCollapse = new Set();
+  if (weekCollapse.has(key)) weekCollapse.delete(key);
+  else weekCollapse.add(key);
+  renderAgenda();
+});
+
+// Voltar ao topo
+const backTopBtn = document.getElementById("backTop");
+window.addEventListener("scroll", () => {
+  backTopBtn.classList.toggle("show", window.scrollY > 500);
+}, { passive: true });
+backTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 initSupabase();
 </script>
