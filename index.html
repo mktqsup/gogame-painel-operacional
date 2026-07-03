@@ -1001,6 +1001,35 @@
   .goal-bar .g1 { background: linear-gradient(90deg, var(--cyan), #67E8F9); }
   .goal-bar .g2 { background: linear-gradient(90deg, var(--violet), #a78bfa); }
   .goal-bar .g3 { background: linear-gradient(90deg, var(--magenta), var(--green-soft)); }
+  .launch-snapshot {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(168,164,215,.14);
+  }
+  .launch-kpi {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .launch-kpi span {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .launch-kpi strong {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.05;
+  }
+  .launch-kpi small {
+    color: rgba(247,245,255,.68);
+    line-height: 1.35;
+  }
 
   .journey { display: grid; }
   .step { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(168,164,215,.12); }
@@ -1375,7 +1404,7 @@
       <div class="grid cols-2">
         <div class="card">
           <h3 class="card-title">Meta de vendas — 1º lote</h3>
-          <p class="muted" style="margin:0 0 14px">Ingressos na abertura do lote promocional (03/07).</p>
+          <p class="muted" style="margin:0 0 14px">Ingressos na abertura do lote promocional (03/07). Leitura atualizada às 01:05.</p>
           <div class="goal-tiers">
             <div class="goal-tier">
               <div class="goal-head"><span class="goal-rank">Meta 1</span><span class="goal-val">R$ 140k+</span></div>
@@ -1388,6 +1417,28 @@
             <div class="goal-tier">
               <div class="goal-head"><span class="goal-rank">Meta 3 · objetivo</span><span class="goal-val">R$ 200k+</span></div>
               <div class="goal-bar"><span class="g3" style="width:100%"></span></div>
+            </div>
+          </div>
+          <div class="launch-snapshot" aria-label="Resultado da abertura do carrinho">
+            <div class="launch-kpi">
+              <span>Confirmado</span>
+              <strong>R$ 25.525,76</strong>
+              <small>R$ 23.205,40 de repasse.</small>
+            </div>
+            <div class="launch-kpi">
+              <span>Ingressos</span>
+              <strong>450</strong>
+              <small>Acessos confirmados na primeira hora.</small>
+            </div>
+            <div class="launch-kpi">
+              <span>Pendente</span>
+              <strong>R$ 528,00</strong>
+              <small>15 ingressos ainda pendentes.</small>
+            </div>
+            <div class="launch-kpi">
+              <span>Alerta</span>
+              <strong>VIP</strong>
+              <small>Controlado; revisar volume por lote.</small>
             </div>
           </div>
         </div>
@@ -1497,7 +1548,7 @@ const STATUS_CLASS = {
 };
 
 const defaultData = {
-  updatedAt: "24/06/2026",
+  updatedAt: "03/07/2026 01:05",
   agenda: [
     { date: "22/06", content: "Comunidade GoGamers", channel: "Carrossel + Stories", goal: "Engajamento · entrar na comunidade WhatsApp", owner: "Henrique", status: "Em revisão", note: "Prioridade do dia. Depende de benefício real + link/CTA correto." },
     { date: "23/06", content: "Sustentação da comunidade", channel: "Stories", goal: "Reforçar benefício · responder dúvidas", owner: "Henrique", status: "Programado", note: "Roteiro leve no dia. Depende do link + respostas da comunidade." },
@@ -1508,12 +1559,12 @@ const defaultData = {
     { date: "28/06", content: "Interação de aquecimento", channel: "Stories", goal: "Enquete/pergunta sobre expectativa", owner: "Henrique", status: "Programado", note: "Montar no dia anterior. Moderação e respostas." },
     { date: "29/06", content: "Contagem regressiva para o carrinho", channel: "Stories", goal: "FOMO · preparar 03/07", owner: "Henrique", status: "Programado", note: "Até 28/06. Data confirmada; sem preço não aprovado." },
     { date: "30/06", content: "Meme \"Tá dormindo?\"", channel: "Carrossel + Stories", goal: "Engajamento · compartilhamento", owner: "Henrique", status: "Aprovado", note: "Feito. Validar versão final antes de agendar." },
-    { date: "01/07", content: "\"É nesta semana\" + dúvidas frequentes", channel: "Stories", goal: "Preparar compra · abrir caixa de perguntas", owner: "Henrique", status: "Bloqueado", note: "Até 30/06. Depende de FAQ mínimo + estrutura de ingressos." },
-    { date: "02/07", content: "Diferenças dos ingressos", channel: "Carrossel + Stories", goal: "Conversão · explicar oferta antes da abertura", owner: "Henrique", status: "Bloqueado", note: "Master até 01/07. Depende de tipos, benefícios, preços e regras." },
-    { date: "03/07", content: "Teaser oficial de abertura", channel: "Reels cinematic", goal: "Conversão · carrinho aberto", owner: "Nathan", status: "Em produção", note: "Crítico. Master até 02/07. Depende de vídeo final + URL Sympla." },
-    { date: "03/07", content: "Lote promocional disponível", channel: "Feed + Stories", goal: "Conversão direta · CTA para Sympla", owner: "Henrique", status: "Bloqueado", note: "Depende de Sympla publicada + preço + lote + link." },
+    { date: "01/07", content: "\"É nesta semana\" + dúvidas frequentes", channel: "Stories", goal: "Preparar compra · abrir caixa de perguntas", owner: "Henrique", status: "Programado", note: "FAQ mínimo pronto para revisão final. Incluir lógica Sympla: valor unitário x total do pacote/passaporte." },
+    { date: "02/07", content: "Diferenças dos ingressos", channel: "Carrossel + Stories", goal: "Conversão · explicar oferta antes da abertura", owner: "Henrique", status: "Programado", note: "Dados, benefícios e preços reconciliados em 27/06. Falta arte + aprovação final." },
+    { date: "03/07", content: "Teaser oficial de abertura", channel: "Reels cinematic", goal: "Conversão · carrinho aberto", owner: "Nathan", status: "Publicado", note: "Carrinho aberto em 03/07 às 00:01. Usar dados reais da primeira hora como prova social." },
+    { date: "03/07", content: "Lote promocional disponível", channel: "Feed + Stories", goal: "Conversão direta · CTA para Sympla", owner: "Henrique", status: "Publicado", note: "Abertura validada: R$ 25.525,76 confirmados e 450 ingressos/acessos confirmados às 01:05." },
     { date: "03/07", content: "Lote esgotado", channel: "Story condicional", goal: "Urgência e prova social", owner: "Henrique", status: "Programado", note: "Condicional. Publicar só após confirmação real de esgotamento." },
-    { date: "04/07", content: "Primeiros sinais da abertura", channel: "Stories", goal: "Prova social · dúvidas · lembrete", owner: "Henrique", status: "Programado", note: "Moldura até 03/07. Depende de dados reais de venda/interação." },
+    { date: "04/07", content: "Primeiros sinais da abertura", channel: "Stories", goal: "Prova social · dúvidas · lembrete", owner: "Henrique", status: "Programado", note: "Usar abertura: R$ 25.525,76 confirmados, 450 acessos e pendência baixa. Destacar VIP controlado sem prometer esgotamento." },
     { date: "05/07", content: "Última chamada do fim de semana", channel: "Stories", goal: "Conversão · recuperar indecisos", owner: "Henrique", status: "Programado", note: "Condicional. Até 04/07. Lote ainda disponível + link correto." },
     { date: "06/07", content: "Vamos no Go Game 2026?", channel: "Reels trend", goal: "Alcance + intenção", owner: "Nathan", status: "Programado", note: "Master até 05/07. Trend ainda relevante + CTA atualizado." },
     { date: "a definir", trilha: "Ananda", content: "O que é o Go Game Festival? (institucional)", channel: "Reels", goal: "Consciência · apresentar o evento e a edição 2026", owner: "Ananda", status: "Programado", note: "Importância para a comunidade gamer e o que esperar de 2026." },
@@ -1553,11 +1604,11 @@ const defaultData = {
     { name: "Fechar Reels \"Você conhece a Go Game?\"", owner: "Nathan", due: "23/06", status: "Em produção", next: "Aprovação Muryllo + Henrique; depois marca." },
     { name: "Fechar arte de countdown e template do TBT", owner: "Henrique", due: "24/06", status: "Programado", next: "Aprovação Henrique + Nathan; depois marca." },
     { name: "Confirmar vencedor e texto oficial do TBT", owner: "Nathan / Marca", due: "25/06", status: "Programado", next: "Validação humana registrada." },
-    { name: "Fechar estrutura, benefícios e preços dos ingressos", owner: "Kid / Marca", due: "29/06", status: "Bloqueado", next: "Decisão final para carrossel, FAQ e Sympla." },
-    { name: "Fechar FAQ mínimo e jornada do link da bio", owner: "QSUP + Marca", due: "30/06", status: "Bloqueado", next: "Link real do Sympla e regras oficiais." },
+    { name: "Fechar estrutura, benefícios e preços dos ingressos", owner: "Kid / Marca", due: "29/06", status: "Aprovado", next: "Confirmado por Junior em 27/06: Sympla mostra valor unitário nos itens com 3 acessos/dias; peças usam total." },
+    { name: "Fechar FAQ mínimo e jornada do link da bio", owner: "QSUP + Marca", due: "30/06", status: "Em revisão", next: "FAQ pronto com políticas da Sympla e lógica de preço unitário. Falta QA do link da bio/site." },
     { name: "Aprovar carrossel de ingressos e kit de abertura", owner: "Muryllo + Henrique + Nathan", due: "01/07", status: "Programado", next: "Aprovação Junior/Kid/Ana." },
     { name: "QA final: teaser, feed, stories, links e contingências", owner: "Muryllo + Nathan", due: "02/07", status: "Programado", next: "Liberação final de publicação." },
-    { name: "Plantão de abertura e atualização por dado real", owner: "Heads", due: "03/07", status: "Programado", next: "Vendas, dúvidas, lote e prova social." }
+    { name: "Plantão de abertura e atualização por dado real", owner: "Heads", due: "03/07", status: "Publicado", next: "Atualizado às 01:05: R$ 25.525,76 confirmados, 450 ingressos/acessos, R$ 528,00 pendentes e 15 pendências." }
   ],
   editorial: [
     { text: "Vídeo cinematográfico é prioridade: b-roll, atmosfera, ambiente, texto na tela e trilha." },
@@ -1955,7 +2006,8 @@ function renderCountdown() {
   if (cart > 0) {
     cards.push({ num: cart === 1 ? "1 dia" : cart + " dias", label: "para a <strong>abertura do carrinho</strong> · 03/07 às 00:01 (lote promocional)", cls: "" });
   } else if (loteEnd >= 0) {
-    cards.push({ num: cart === 0 ? "É HOJE" : "ABERTO", label: "<strong>Carrinho aberto!</strong> Lote promocional até 12/07 · garanta no Sympla", cls: "" });
+    cards.push({ num: "R$ 25.525,76", label: "<strong>Carrinho aberto!</strong> Venda confirmada às 01:05 · 450 ingressos/acessos confirmados", cls: "" });
+    cards.push({ num: "R$ 528,00", label: "<strong>Pendente baixo</strong> · 15 ingressos aguardando confirmação · VIP controlado", cls: "" });
   }
 
   const evt = daysUntil(2026, 9, 11);
