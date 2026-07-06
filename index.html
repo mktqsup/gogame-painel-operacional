@@ -42,6 +42,7 @@
   body {
     margin: 0;
     min-height: 100vh;
+    overflow-x: hidden;
     color: var(--text);
     background:
       radial-gradient(circle at 12% 10%, rgba(8,217,255,.13), transparent 30%),
@@ -78,8 +79,10 @@
   .app {
     position: relative;
     width: min(1180px, calc(100% - 28px));
+    max-width: 100%;
     margin: 0 auto;
     padding: 24px 0 42px;
+    overflow-x: clip;
   }
 
   .topbar {
@@ -87,6 +90,7 @@
     grid-template-columns: 1fr auto;
     gap: 18px;
     align-items: start;
+    min-width: 0;
     padding: 22px;
     border: 1px solid var(--line);
     border-radius: 28px;
@@ -100,6 +104,12 @@
     gap: 20px;
     align-items: center;
     min-width: 0;
+    max-width: 100%;
+  }
+
+  .brand > div {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .brand-logo {
@@ -122,7 +132,13 @@
     font-family: "Nickel Wide", Arial, sans-serif;
     font-size: clamp(25px, 4vw, 46px);
     line-height: .98;
-    letter-spacing: .02em;
+    letter-spacing: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  h1 span {
+    display: block;
   }
 
   .subtitle {
@@ -130,6 +146,7 @@
     color: rgba(247,245,255,.72);
     line-height: 1.55;
     max-width: 670px;
+    overflow-wrap: anywhere;
   }
 
   .top-actions {
@@ -137,6 +154,7 @@
     gap: 9px;
     flex-wrap: wrap;
     justify-content: flex-end;
+    max-width: 100%;
   }
 
   .admin-actions {
@@ -277,7 +295,9 @@
   .metric-value {
     margin-top: 9px;
     font-family: "Nickel Wide", Arial, sans-serif;
-    font-size: 32px;
+    font-size: clamp(24px, 2.4vw, 32px);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
   }
 
   .metric-note {
@@ -982,6 +1002,15 @@
       border-radius: 22px;
     }
 
+    h1 {
+      font-size: clamp(18px, 6vw, 23px);
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+
     .brand-logo {
       width: min(260px, 84vw);
     }
@@ -993,9 +1022,9 @@
   /* Estratégia: metas escalonadas + funil do cliente */
   .goal-tiers { display: grid; gap: 14px; }
   .goal-tier { display: grid; gap: 6px; }
-  .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .goal-rank { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-  .goal-val { font-family: var(--font-display); font-size: 20px; color: var(--text); }
+  .goal-val { font-family: var(--font-display); font-size: clamp(16px, 1.35vw, 20px); color: var(--text); overflow-wrap: anywhere; }
   .goal-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.06); overflow: hidden; }
   .goal-bar span { display: block; height: 100%; border-radius: 999px; }
   .goal-bar .g1 { background: linear-gradient(90deg, var(--cyan), #67E8F9); }
@@ -1023,8 +1052,9 @@
   .launch-kpi strong {
     color: var(--text);
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: clamp(18px, 1.55vw, 22px);
     line-height: 1.05;
+    overflow-wrap: anywhere;
   }
   .launch-kpi small {
     color: rgba(247,245,255,.68);
@@ -1079,29 +1109,42 @@
   /* Countdown de marcos (Visão Geral) */
   .countdown-strip {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 12px;
     margin: 0 0 14px;
   }
   .countdown {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    min-width: 0;
     border: 1px solid rgba(0,224,0,.35);
     border-radius: var(--radius);
-    padding: 12px 16px;
+    padding: 14px 18px;
     background: linear-gradient(135deg, rgba(0,224,0,.10), rgba(8,217,255,.05));
   }
   .countdown .cd-num {
     font-family: var(--font-display);
-    font-size: 30px;
+    font-size: clamp(24px, 2.2vw, 34px);
     color: var(--green-soft);
-    line-height: 1;
-    white-space: nowrap;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
-  .countdown .cd-label { font-size: 13px; color: rgba(247,245,255,.82); line-height: 1.4; }
+  .countdown .cd-label {
+    min-width: 0;
+    font-size: 13px;
+    color: rgba(247,245,255,.82);
+    line-height: 1.42;
+    overflow-wrap: anywhere;
+  }
+  .countdown .cd-label strong { color: var(--text); }
   .countdown.cd-magenta { border-color: rgba(255,0,212,.35); background: linear-gradient(135deg, rgba(255,0,212,.10), rgba(123,87,255,.05)); }
   .countdown.cd-magenta .cd-num { color: var(--magenta); }
+
+  @media (max-width: 640px) {
+    .countdown-strip { grid-template-columns: 1fr; }
+    .countdown { padding: 13px 15px; }
+  }
 
   /* Semanas colapsáveis na agenda */
   #agenda tr.week-row td { cursor: pointer; user-select: none; }
@@ -1136,7 +1179,7 @@
       <img class="brand-logo" src="assets/official_logos/gogame_official_logo_transparent_horizontal.png" alt="GO GAME Festival">
       <div>
         <div class="eyebrow">&gt;_ o sistema voltou</div>
-        <h1>Painel Operacional 2026</h1>
+        <h1><span>Painel</span><span>Operacional</span><span>2026</span></h1>
         <p class="subtitle">Acompanhamento simples de entregas, agenda, aprovações e desempenho do Instagram para cliente e time.</p>
       </div>
     </div>
@@ -1663,10 +1706,18 @@ function perfFreshnessValue(source) {
   return Number(match[2] + match[1]);
 }
 
+function freshnessFromDateText(value) {
+  const match = String(value || "").match(/(\d{2})\/(\d{2})/);
+  if (!match) return 0;
+  return Number(match[2] + match[1]);
+}
+
 function mergeDashboardData(source = {}) {
   const base = structuredClone(defaultData);
   const merged = { ...base, ...source };
-  if (!source.sales || !source.sales.confirmed) merged.sales = base.sales;
+  if (!source.sales || freshnessFromDateText(source.sales.updated) < freshnessFromDateText(base.sales.updated)) {
+    merged.sales = base.sales;
+  }
   if (perfFreshnessValue(source) < perfFreshnessValue(base)) {
     merged.perf = base.perf;
     merged.perfFormats = base.perfFormats;
@@ -2025,14 +2076,14 @@ function renderCountdown() {
     cards.push({ num: cart === 1 ? "1 dia" : cart + " dias", label: "para a <strong>abertura do carrinho</strong> · 03/07 às 00:01 (lote promocional)", cls: "" });
   } else if (loteEnd >= 0) {
     const s = data.sales || {};
-    cards.push({ num: s.confirmed || "—", label: `<strong>Carrinho aberto!</strong> ${escapeHtml(s.tickets || "—")} ingressos/acessos confirmados · corte ${escapeHtml(s.updated || "")}`, cls: "" });
+    cards.push({ num: s.confirmed || "—", label: `<strong>${escapeHtml(s.tickets || "—")} acessos</strong> · corte ${escapeHtml(s.updated || "")}`, cls: "" });
     const pendParts = (s.pending || "").split(" · ");
-    cards.push({ num: pendParts[0] || "—", label: `<strong>Pendente baixo</strong> · ${escapeHtml(pendParts[1] || "poucos ingressos")} aguardando · VIP controlado`, cls: "" });
+    cards.push({ num: pendParts[0] || "—", label: `<strong>${escapeHtml(pendParts[1] || "poucos ingressos")}</strong> pendentes · VIP controlado`, cls: "" });
   }
 
   const evt = daysUntil(2026, 9, 11);
   if (evt > 0) {
-    cards.push({ num: evt + " dias", label: "para o <strong>GO GAME FESTIVAL 2026</strong> · 11, 12 e 13/09 · Passeio das Águas", cls: "cd-magenta" });
+    cards.push({ num: evt + " dias", label: "<strong>GO GAME 2026</strong> · 11 a 13/09 · Passeio das Águas", cls: "cd-magenta" });
   } else if (evt >= -2) {
     cards.push({ num: "É AGORA", label: "<strong>GO GAME FESTIVAL 2026</strong> em andamento · 11–13/09", cls: "cd-magenta" });
   }
