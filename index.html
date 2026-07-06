@@ -1032,16 +1032,20 @@
   .goal-bar .g3 { background: linear-gradient(90deg, var(--magenta), var(--green-soft)); }
   .launch-snapshot {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid rgba(168,164,215,.14);
   }
   .launch-kpi {
     display: grid;
-    gap: 4px;
+    gap: 7px;
     min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(168,164,215,.12);
+    border-radius: 12px;
+    background: rgba(255,255,255,.025);
   }
   .launch-kpi span {
     color: var(--muted);
@@ -1051,14 +1055,26 @@
   }
   .launch-kpi strong {
     color: var(--text);
-    font-family: var(--font-display);
-    font-size: clamp(18px, 1.55vw, 22px);
-    line-height: 1.05;
+    font-family: var(--font-body);
+    font-size: clamp(24px, 2.2vw, 32px);
+    font-weight: 850;
+    line-height: 1.12;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
   }
   .launch-kpi small {
     color: rgba(247,245,255,.68);
-    line-height: 1.35;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .launch-kpi.meta {
+    grid-column: 1 / -1;
+  }
+  .launch-kpi.meta strong {
+    color: var(--green-soft);
+    font-size: 15px;
+    font-weight: 800;
   }
 
   .journey { display: grid; }
@@ -2445,10 +2461,10 @@ function renderSales() {
     { t: "Confirmado", v: s.confirmed || "—", d: s.repasse ? s.repasse + " de repasse." : "" },
     { t: "Ingressos", v: s.tickets || "—", d: "Acessos confirmados no lote." },
     { t: "Pendente", v: pend[0] || "—", d: (pend[1] ? pend[1] + " aguardando." : "Pendência baixa.") },
-    { t: "Atualizado", v: s.updated || "—", d: s.note || "" }
+    { t: "Atualizado", v: `Corte ${s.updated || "—"}`, d: s.note || "", meta: true }
   ];
   snap.innerHTML = kpis.map(k => `
-    <div class="launch-kpi">
+    <div class="launch-kpi ${k.meta ? "meta" : ""}">
       <span>${escapeHtml(k.t)}</span>
       <strong>${escapeHtml(k.v)}</strong>
       <small>${escapeHtml(k.d)}</small>
