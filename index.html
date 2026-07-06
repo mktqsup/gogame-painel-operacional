@@ -1599,19 +1599,21 @@ const defaultData = {
     { text: "Atrações confirmadas só entram depois da abertura do lote promocional em julho." }
   ],
   perf: [
-    { label: "Seguidores", value: "28.032", note: "529 publicações no perfil" },
-    { label: "Contas alcançadas (30d)", value: "39.208", note: "Últimos 30 dias" },
-    { label: "Interações (30d)", value: "13.186", note: "4.127 contas engajadas" },
-    { label: "Visualizações (30d)", value: "238.767", note: "Stories 52,7% · Reels 44%" },
-    { label: "Visitas ao perfil (30d)", value: "11.513", note: "14.262 atividades de perfil" },
-    { label: "Toques em links (30d)", value: "2.462", note: "Cliques no link da bio" },
-    { label: "Comunidade WhatsApp", value: "1.055", note: "+34 pedidos em creators" },
-    { label: "Atualizado em", value: "17/06", note: "Fonte: Instagram Insights" }
+    { label: "Seguidores", value: "28.606", note: "Total na conta" },
+    { label: "Contas alcançadas (30d)", value: "57.946", note: "Últimos 30 dias" },
+    { label: "Interações (30d)", value: "29.827", note: "6.706 contas engajadas" },
+    { label: "Visualizações (30d)", value: "523.957", note: "83,3% de seguidores" },
+    { label: "Visitas ao perfil (30d)", value: "20.945", note: "Atividade de perfil: 27.889" },
+    { label: "Toques em links (30d)", value: "6.607", note: "No Instagram (toques na bio)" },
+    { label: "Link da bio — views (28d)", value: "2.000", note: "Linktree · últimos 28 dias" },
+    { label: "Link da bio — cliques (28d)", value: "858", note: "Linktree · taxa de clique 42,9%" },
+    { label: "Comunidade WhatsApp", value: "2.377", note: "1.024 + 1.025 + 328 (3 turmas pré-venda) · 187 no grupo creators" },
+    { label: "Atualizado em", value: "06/07", note: "IG Insights 06/07 · comunidade 06/07" }
   ],
   perfFormats: [
-    { format: "Reels", views: "44,0", interactions: "63,7" },
-    { format: "Stories", views: "52,7", interactions: "20,5" },
-    { format: "Posts", views: "3,2", interactions: "15,8" }
+    { format: "Reels", views: "40,9", interactions: "53,3" },
+    { format: "Stories", views: "46,3", interactions: "17,1" },
+    { format: "Posts", views: "12,9", interactions: "29,6" }
   ],
   perfInsights: [
     { text: "Reels puxam descoberta e interação (44% das views, 63,7% das interações) → priorizar Reels cinematic." },
@@ -1620,10 +1622,21 @@ const defaultData = {
     { text: "Tração vem de experiência, presença humana e prova social, mais que post estático." }
   ],
   performance: [
+    { content: "Reels Collab \"Creator Challenge\" (Ananda)", format: "Reels collab", reach: "6.018", interactions: "705", signal: "11.934 views · 530 curtidas · 41 coment. · 32% não-seguidores (descoberta)", decision: "Collab de creators puxa não-seguidores — bom para alcance novo." },
+    { content: "Reels \"Faltam 7 dias\"", format: "Reels", reach: "6.370", interactions: "804", signal: "13.838 views · 617 curtidas · 23 coment. · 71% seguidores", decision: "Boa tração de contagem regressiva — manter sequência até 03/07." },
+    { content: "Tipos de Ingressos (carrossel)", format: "Carrossel", reach: "4.443", interactions: "941", signal: "631 curtidas · 211 compart. · 50 salvos · 18 coment.", decision: "Boa tração (94% seguidores). Reforçar tipos de ingresso até o carrinho." },
     { content: "Comunidade GoGamers", format: "Carrossel", reach: "—", interactions: "—", signal: "Cliques e respostas", decision: "Reforçar CTA se clique baixo." },
     { content: "Você conhece a Go Game?", format: "Reels", reach: "—", interactions: "—", signal: "Retenção e compartilhamento", decision: "Se performar, virar série institucional." },
     { content: "Lote promocional disponível", format: "Feed + Stories", reach: "—", interactions: "—", signal: "Cliques e DMs", decision: "FAQ e urgência se houver objeção." }
   ],
+  audience: {
+    updated: "junho",
+    country: "Brasil 98,2% (EUA 0,4% · Portugal 0,3%)",
+    bestTimes: "Seg · Ter · Sex, 18h–21h",
+    gender: [{ label: "Homens", pct: "63,5" }, { label: "Mulheres", pct: "36,5" }],
+    ages: [{ label: "25–34", pct: "40,4" }, { label: "18–24", pct: "34,3" }, { label: "35–44", pct: "13,2" }, { label: "13–17", pct: "7,3" }],
+    cities: [{ label: "Goiânia", pct: "40,3" }, { label: "Aparecida de Goiânia", pct: "9,7" }, { label: "Anápolis", pct: "2,9" }, { label: "Senador Canedo", pct: "2,6" }]
+  },
   files: [
     { title: "Pacote oficial aprovado — data/local", status: "Aprovado", path: "assets/posts/PRODUCAO_OFICIAL_APROVADA_2026-06-21/02_GO_GAME_2026_ANUNCIO_DATA_LOCAL_OFICIAL_APROVADO_1080x1350.png", note: "PNG fiel à arte aprovada, sem troca de fonte." },
     { title: "Manifest da produção oficial", status: "Aprovado", path: "assets/posts/PRODUCAO_OFICIAL_APROVADA_2026-06-21/04_MANIFEST_PRODUCAO.md", note: "Rastreabilidade do material aprovado." }
@@ -1643,13 +1656,34 @@ let agendaFilter = { trilha: "Todas", status: "Todos", q: "", view: "all" };
 let weekCollapse = null;
 let teamMode = false;
 
+function perfFreshnessValue(source) {
+  const item = (source?.perf || []).find(row => row.label === "Atualizado em");
+  const match = String(item?.value || "").match(/(\d{2})\/(\d{2})/);
+  if (!match) return 0;
+  return Number(match[2] + match[1]);
+}
+
+function mergeDashboardData(source = {}) {
+  const base = structuredClone(defaultData);
+  const merged = { ...base, ...source };
+  if (!source.sales || !source.sales.confirmed) merged.sales = base.sales;
+  if (perfFreshnessValue(source) < perfFreshnessValue(base)) {
+    merged.perf = base.perf;
+    merged.perfFormats = base.perfFormats;
+    merged.performance = base.performance;
+    merged.audience = base.audience;
+    merged.updatedAt = base.updatedAt;
+  }
+  return merged;
+}
+
 function loadLocalData() {
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return structuredClone(defaultData);
+  if (!saved) return mergeDashboardData();
   try {
-    return { ...structuredClone(defaultData), ...JSON.parse(saved) };
+    return mergeDashboardData(JSON.parse(saved));
   } catch {
-    return structuredClone(defaultData);
+    return mergeDashboardData();
   }
 }
 
@@ -1720,8 +1754,10 @@ async function loadRemoteData() {
   if (row?.data) {
     remoteReady = true;
     remoteRowId = row.id;
-    data = { ...structuredClone(defaultData), ...row.data };
-    data.updatedAt = new Date(row.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    data = mergeDashboardData(row.data);
+    if (perfFreshnessValue(row.data) >= perfFreshnessValue(defaultData)) {
+      data.updatedAt = new Date(row.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
   }
   render();
@@ -1738,8 +1774,10 @@ function subscribeRealtime() {
       filter: `slug=eq.${supabaseConfig.dashboardSlug}`
     }, payload => {
       if (payload.new?.data) {
-        data = { ...structuredClone(defaultData), ...payload.new.data };
-        data.updatedAt = new Date(payload.new.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+        data = mergeDashboardData(payload.new.data);
+        if (perfFreshnessValue(payload.new.data) >= perfFreshnessValue(defaultData)) {
+          data.updatedAt = new Date(payload.new.updated_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+        }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
         render();
       }
@@ -2619,7 +2657,7 @@ document.getElementById("importFile").addEventListener("change", event => {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      data = { ...structuredClone(defaultData), ...JSON.parse(reader.result) };
+      data = mergeDashboardData(JSON.parse(reader.result));
       saveData();
     } catch {
       alert("Não foi possível importar o JSON. Verifique o arquivo.");
