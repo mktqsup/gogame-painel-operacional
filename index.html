@@ -1403,44 +1403,10 @@
       </div>
       <div class="grid cols-2">
         <div class="card">
-          <h3 class="card-title">Meta de vendas — 1º lote</h3>
-          <p class="muted" style="margin:0 0 14px">Ingressos na abertura do lote promocional (03/07). Leitura atualizada às 01:05.</p>
-          <div class="goal-tiers">
-            <div class="goal-tier">
-              <div class="goal-head"><span class="goal-rank">Meta 1</span><span class="goal-val">R$ 140k+</span></div>
-              <div class="goal-bar"><span class="g1" style="width:70%"></span></div>
-            </div>
-            <div class="goal-tier">
-              <div class="goal-head"><span class="goal-rank">Meta 2</span><span class="goal-val">R$ 170k+</span></div>
-              <div class="goal-bar"><span class="g2" style="width:85%"></span></div>
-            </div>
-            <div class="goal-tier">
-              <div class="goal-head"><span class="goal-rank">Meta 3 · objetivo</span><span class="goal-val">R$ 200k+</span></div>
-              <div class="goal-bar"><span class="g3" style="width:100%"></span></div>
-            </div>
-          </div>
-          <div class="launch-snapshot" aria-label="Resultado da abertura do carrinho">
-            <div class="launch-kpi">
-              <span>Confirmado</span>
-              <strong>R$ 25.525,76</strong>
-              <small>R$ 23.205,40 de repasse.</small>
-            </div>
-            <div class="launch-kpi">
-              <span>Ingressos</span>
-              <strong>450</strong>
-              <small>Acessos confirmados na primeira hora.</small>
-            </div>
-            <div class="launch-kpi">
-              <span>Pendente</span>
-              <strong>R$ 528,00</strong>
-              <small>15 ingressos ainda pendentes.</small>
-            </div>
-            <div class="launch-kpi">
-              <span>Alerta</span>
-              <strong>VIP</strong>
-              <small>Controlado; revisar volume por lote.</small>
-            </div>
-          </div>
+          <h3 class="card-title">Meta de vendas — lote promocional</h3>
+          <p class="muted" style="margin:0 0 14px" id="salesIntro">Vendas do lote promocional (03–12/07) contra as metas de referência.</p>
+          <div class="goal-tiers" id="salesTiers"></div>
+          <div class="launch-snapshot" id="salesSnapshot" aria-label="Resultado da abertura do carrinho"></div>
         </div>
         <div class="card">
           <h3 class="card-title">Regras de conteúdo</h3>
@@ -1548,7 +1514,21 @@ const STATUS_CLASS = {
 };
 
 const defaultData = {
-  updatedAt: "03/07/2026 01:05",
+  updatedAt: "06/07/2026 11:26",
+  sales: {
+    updated: "06/07 11:26",
+    confirmed: "R$ 82.552,36",
+    confirmedNum: 82552,
+    tickets: "1.864",
+    repasse: "R$ 75.047,78 (90,91%)",
+    pending: "R$ 580,80 · 16 ingressos",
+    note: "Lote promocional 03–12/07 · fonte Sympla (Junior)",
+    metas: [
+      { label: "Meta 1", target: 140000 },
+      { label: "Meta 2", target: 170000 },
+      { label: "Meta 3 (objetivo)", target: 200000 }
+    ]
+  },
   agenda: [
     { date: "22/06", content: "Comunidade GoGamers", channel: "Carrossel + Stories", goal: "Engajamento · entrar na comunidade WhatsApp", owner: "Henrique", status: "Em revisão", note: "Prioridade do dia. Depende de benefício real + link/CTA correto." },
     { date: "23/06", content: "Sustentação da comunidade", channel: "Stories", goal: "Reforçar benefício · responder dúvidas", owner: "Henrique", status: "Programado", note: "Roteiro leve no dia. Depende do link + respostas da comunidade." },
@@ -2006,8 +1986,10 @@ function renderCountdown() {
   if (cart > 0) {
     cards.push({ num: cart === 1 ? "1 dia" : cart + " dias", label: "para a <strong>abertura do carrinho</strong> · 03/07 às 00:01 (lote promocional)", cls: "" });
   } else if (loteEnd >= 0) {
-    cards.push({ num: "R$ 25.525,76", label: "<strong>Carrinho aberto!</strong> Venda confirmada às 01:05 · 450 ingressos/acessos confirmados", cls: "" });
-    cards.push({ num: "R$ 528,00", label: "<strong>Pendente baixo</strong> · 15 ingressos aguardando confirmação · VIP controlado", cls: "" });
+    const s = data.sales || {};
+    cards.push({ num: s.confirmed || "—", label: `<strong>Carrinho aberto!</strong> ${escapeHtml(s.tickets || "—")} ingressos/acessos confirmados · corte ${escapeHtml(s.updated || "")}`, cls: "" });
+    const pendParts = (s.pending || "").split(" · ");
+    cards.push({ num: pendParts[0] || "—", label: `<strong>Pendente baixo</strong> · ${escapeHtml(pendParts[1] || "poucos ingressos")} aguardando · VIP controlado`, cls: "" });
   }
 
   const evt = daysUntil(2026, 9, 11);
@@ -2352,6 +2334,40 @@ function renderEditorial() {
   `).join("");
 }
 
+function renderSales() {
+  const tiers = document.getElementById("salesTiers");
+  const snap = document.getElementById("salesSnapshot");
+  if (!tiers || !snap) return;
+  const s = data.sales;
+  if (!s) { tiers.innerHTML = ""; snap.innerHTML = ""; return; }
+  const val = Number(s.confirmedNum) || 0;
+  const fmtK = n => "R$ " + Math.round(n / 1000) + "k";
+  const metas = s.metas || [];
+  tiers.innerHTML = metas.map((m, i) => {
+    const pct = m.target ? Math.min(100, Math.round(val / m.target * 100)) : 0;
+    return `
+    <div class="goal-tier">
+      <div class="goal-head"><span class="goal-rank">${escapeHtml(m.label)}</span><span class="goal-val">${fmtK(m.target)} · ${pct}%</span></div>
+      <div class="goal-bar"><span class="g${i + 1}" style="width:${pct}%"></span></div>
+    </div>`;
+  }).join("");
+  const pend = (s.pending || "").split(" · ");
+  const kpis = [
+    { t: "Confirmado", v: s.confirmed || "—", d: s.repasse ? s.repasse + " de repasse." : "" },
+    { t: "Ingressos", v: s.tickets || "—", d: "Acessos confirmados no lote." },
+    { t: "Pendente", v: pend[0] || "—", d: (pend[1] ? pend[1] + " aguardando." : "Pendência baixa.") },
+    { t: "Atualizado", v: s.updated || "—", d: s.note || "" }
+  ];
+  snap.innerHTML = kpis.map(k => `
+    <div class="launch-kpi">
+      <span>${escapeHtml(k.t)}</span>
+      <strong>${escapeHtml(k.v)}</strong>
+      <small>${escapeHtml(k.d)}</small>
+    </div>`).join("");
+  const intro = document.getElementById("salesIntro");
+  if (intro) intro.textContent = `Vendas do lote promocional (03–12/07) contra as metas de referência. Corte ${s.updated || ""}.`;
+}
+
 function render() {
   document.body.classList.toggle("editing", editing);
   document.body.classList.toggle("team-mode", teamMode || editing || Boolean(supabaseSession));
@@ -2361,6 +2377,7 @@ function render() {
   renderDeliveries();
   renderAgenda();
   renderPerformance();
+  renderSales();
   renderFiles();
   renderEditorial();
   document.getElementById("lastSaved").textContent = `Última atualização local: ${data.updatedAt}.`;
