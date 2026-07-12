@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
 <title>GO GAME 2026 — Painel Operacional</title>
 <style>
   @font-face {
@@ -1221,9 +1222,119 @@
     cursor: pointer;
   }
   .backtop.show { display: block; }
+
+  body.locked {
+    overflow: hidden;
+  }
+
+  body.locked .app,
+  body.locked .modal,
+  body.locked .backtop {
+    display: none;
+  }
+
+  .access-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    place-items: center;
+    padding: 24px;
+    background:
+      radial-gradient(circle at 20% 12%, rgba(8,217,255,.16), transparent 28%),
+      radial-gradient(circle at 82% 0%, rgba(255,0,212,.18), transparent 28%),
+      linear-gradient(135deg, #050711, #110820 58%, #080914);
+  }
+
+  body.locked .access-gate {
+    display: grid;
+  }
+
+  .access-card {
+    width: min(440px, 100%);
+    display: grid;
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid rgba(168,164,215,.2);
+    border-radius: 18px;
+    background: rgba(13,10,30,.92);
+    box-shadow: var(--shadow);
+  }
+
+  .access-card img {
+    width: 210px;
+    max-width: 72%;
+    height: auto;
+  }
+
+  .access-card h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 7vw, 42px);
+    line-height: .96;
+    letter-spacing: 0;
+  }
+
+  .access-card p {
+    margin: 0;
+    color: rgba(247,245,255,.72);
+  }
+
+  .access-form {
+    display: grid;
+    gap: 10px;
+  }
+
+  .access-form label {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  .access-form input {
+    width: 100%;
+    border: 1px solid rgba(168,164,215,.25);
+    border-radius: 12px;
+    padding: 13px 14px;
+    color: var(--text);
+    background: rgba(255,255,255,.06);
+    outline: none;
+  }
+
+  .access-error {
+    min-height: 20px;
+    color: var(--danger);
+    font-size: 13px;
+  }
+
+  .access-note {
+    color: rgba(247,245,255,.52);
+    font-size: 12px;
+  }
 </style>
 </head>
-<body>
+<body class="locked">
+<div class="access-gate" id="accessGate">
+  <div class="access-card">
+    <img src="assets/official_logos/gogame_official_logo_transparent_horizontal.png" alt="GO GAME Festival">
+    <div>
+      <div class="eyebrow">&gt;_ acesso restrito</div>
+      <h2>Painel Operacional</h2>
+    </div>
+    <p>Digite a senha para visualizar os numeros e informacoes internas do projeto.</p>
+    <form class="access-form" id="accessForm">
+      <label>Senha
+        <input id="accessPassword" type="password" autocomplete="current-password" autofocus>
+      </label>
+      <button class="btn primary" type="submit">Entrar</button>
+      <div class="access-error" id="accessError" role="alert"></div>
+    </form>
+    <div class="access-note">Uso interno QSUP / GO GAME. Nao compartilhe este link fora do time autorizado.</div>
+  </div>
+</div>
 <div class="app">
   <header class="topbar">
     <div class="brand">
@@ -1603,6 +1714,8 @@
 <script>
 const STORAGE_KEY = "gogame-dashboard-operacional-v2";
 const SUPABASE_SETTINGS_KEY = "gogame-supabase-settings-v1";
+const ACCESS_SESSION_KEY = "gogame-dashboard-access-v1";
+const ACCESS_HASH = "8fd7bb6f346c94c8c02904017ced802b36e0664cb077c10d74bda4042a8631bc";
 const STATUS_CLASS = {
   "Aprovado": "s-approved",
   "Publicado": "s-published",
@@ -1759,6 +1872,46 @@ let realtimeChannel = null;
 let agendaFilter = { trilha: "Todas", status: "Todos", q: "", view: "all" };
 let weekCollapse = null;
 let teamMode = false;
+
+async function sha256Hex(value) {
+  const bytes = new TextEncoder().encode(value);
+  const buffer = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(buffer)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function unlockDashboard() {
+  sessionStorage.setItem(ACCESS_SESSION_KEY, "ok");
+  document.body.classList.remove("locked");
+}
+
+function setupAccessGate(onUnlock) {
+  const form = document.getElementById("accessForm");
+  const input = document.getElementById("accessPassword");
+  const error = document.getElementById("accessError");
+  if (sessionStorage.getItem(ACCESS_SESSION_KEY) === "ok") {
+    unlockDashboard();
+    onUnlock();
+    return;
+  }
+  input?.focus();
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    error.textContent = "";
+    const typed = input.value.trim();
+    if (!typed) {
+      error.textContent = "Informe a senha.";
+      return;
+    }
+    const hash = await sha256Hex(typed);
+    if (hash !== ACCESS_HASH) {
+      error.textContent = "Senha incorreta.";
+      input.select();
+      return;
+    }
+    unlockDashboard();
+    onUnlock();
+  });
+}
 
 function perfFreshnessValue(source) {
   const item = (source?.perf || []).find(row => row.label === "Atualizado em");
@@ -2806,7 +2959,7 @@ window.addEventListener("scroll", () => {
 }, { passive: true });
 backTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-initSupabase();
+setupAccessGate(initSupabase);
 </script>
 </body>
 </html>
