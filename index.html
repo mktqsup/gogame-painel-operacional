@@ -1076,6 +1076,41 @@
     font-size: 15px;
     font-weight: 800;
   }
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .history-item {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(168,164,215,.12);
+    border-radius: 10px;
+    background: rgba(255,255,255,.025);
+  }
+  .history-item span {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .history-item strong {
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: clamp(22px, 2vw, 30px);
+    line-height: 1.12;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .history-item small {
+    color: rgba(247,245,255,.68);
+    font-size: 13px;
+    line-height: 1.4;
+  }
 
   .journey { display: grid; }
   .step { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(168,164,215,.12); }
@@ -1468,6 +1503,11 @@
           <div class="launch-snapshot" id="salesSnapshot" aria-label="Resultado da abertura do carrinho"></div>
         </div>
         <div class="card">
+          <h3 class="card-title">Comparativo Sympla</h3>
+          <p class="muted" style="margin:0">2026 ainda e corte parcial de pre-evento; anos anteriores entram como referencia historica, nao como fechamento comparavel.</p>
+          <div class="history-grid" id="salesHistory"></div>
+        </div>
+        <div class="card">
           <h3 class="card-title">Regras de conteúdo</h3>
           <p class="muted">Sempre “festival”. Data oficial: 11, 12 e 13 de setembro de 2026. Local: Passeio das Águas Shopping. Realização: AGES.</p>
           <div class="chips">
@@ -1573,19 +1613,24 @@ const STATUS_CLASS = {
 };
 
 const defaultData = {
-  updatedAt: "06/07/2026 11:26",
+  updatedAt: "11/07/2026 20:08",
   sales: {
-    updated: "06/07 11:26",
-    confirmed: "R$ 82.552,36",
-    confirmedNum: 82552,
-    tickets: "1.864",
-    repasse: "R$ 75.047,78 (90,91%)",
-    pending: "R$ 580,80 · 16 ingressos",
-    note: "Lote promocional 03–12/07 · fonte Sympla (Junior)",
+    updated: "11/07 20:07",
+    confirmed: "R$ 126.112,36",
+    confirmedNum: 126112,
+    tickets: "2.969",
+    repasse: "R$ 114.647,78 (90,91%)",
+    pending: "R$ 913,44 · 23 ingressos",
+    note: "Lote promocional 03-12/07 · fonte Sympla (prints 11/07)",
     metas: [
       { label: "Meta 1", target: 140000 },
       { label: "Meta 2", target: 170000 },
       { label: "Meta 3 (objetivo)", target: 200000 }
+    ],
+    history: [
+      { label: "2026 atual", value: "R$ 126.112,36", tickets: "2.969 acessos", note: "Corte 11/07 20:07; lote promocional em andamento." },
+      { label: "2025 fechado", value: "R$ 741.476,94", tickets: "9.055 acessos", note: "Historico Sympla; referencia de fechamento." },
+      { label: "Historico GO GAME", value: "R$ 622.415,22", tickets: "6.464 acessos", note: "Print Sympla sem ano no titulo; usar como referencia secundaria." }
     ]
   },
   agenda: [
@@ -1658,35 +1703,35 @@ const defaultData = {
     { text: "Atrações confirmadas só entram depois da abertura do lote promocional em julho." }
   ],
   perf: [
-    { label: "Seguidores", value: "28.606", note: "Total na conta" },
-    { label: "Contas alcançadas (30d)", value: "57.946", note: "Últimos 30 dias" },
-    { label: "Interações (30d)", value: "29.827", note: "6.706 contas engajadas" },
-    { label: "Visualizações (30d)", value: "523.957", note: "83,3% de seguidores" },
-    { label: "Visitas ao perfil (30d)", value: "20.945", note: "Atividade de perfil: 27.889" },
-    { label: "Toques em links (30d)", value: "6.607", note: "No Instagram (toques na bio)" },
-    { label: "Link da bio — views (28d)", value: "2.000", note: "Linktree · últimos 28 dias" },
-    { label: "Link da bio — cliques (28d)", value: "858", note: "Linktree · taxa de clique 42,9%" },
-    { label: "Comunidade WhatsApp", value: "2.377", note: "1.024 + 1.025 + 328 (3 turmas pré-venda) · 187 no grupo creators" },
-    { label: "Atualizado em", value: "06/07", note: "IG Insights 06/07 · comunidade 06/07" }
+    { label: "Seguidores", value: "28.794", note: "Total na conta · 11/07" },
+    { label: "Visualizacoes (30d)", value: "616.403", note: "83% seguidores · 17% nao seguidores" },
+    { label: "Contas alcancadas (30d)", value: "56.629", note: "Ultimos 30 dias" },
+    { label: "Interacoes (30d)", value: "6.843", note: "3.126 contas com engajamento" },
+    { label: "Visitas ao perfil (30d)", value: "5.282", note: "Atividade de perfil: 7.457" },
+    { label: "Toques em links (30d)", value: "2.130", note: "Toques em links externos" },
+    { label: "Link da bio - views (7d)", value: "2.139", note: "Linktree · 2.017 cliques · CTR 94,3%" },
+    { label: "Link da bio - views (28d)", value: "7.528", note: "Linktree · 5.479 cliques · CTR 72,8%" },
+    { label: "Comunidade WhatsApp", value: "2,5k+", note: "Pre-venda + creators visiveis; base nao deduplicada" },
+    { label: "Atualizado em", value: "11/07", note: "IG Insights / Linktree / Sympla 11/07" }
   ],
   perfFormats: [
-    { format: "Reels", views: "40,9", interactions: "53,3" },
-    { format: "Stories", views: "46,3", interactions: "17,1" },
-    { format: "Posts", views: "12,9", interactions: "29,6" }
+    { format: "Reels", views: "41,0", interactions: "65,5" },
+    { format: "Stories", views: "47,8", interactions: "23,6" },
+    { format: "Posts", views: "11,2", interactions: "10,8" }
   ],
   perfInsights: [
-    { text: "Reels puxam descoberta e interação (44% das views, 63,7% das interações) → priorizar Reels cinematic." },
-    { text: "Stories sustentam a frequência diária (52,7% das visualizações)." },
-    { text: "Melhor janela da base: segunda-feira às 15h — ajustar pelo horário que já funcionou." },
-    { text: "Tração vem de experiência, presença humana e prova social, mais que post estático." }
+    { text: "Stories lideram visualizacoes em 30d (47,8%) e devem carregar urgencia/CTA diario ate 12/07." },
+    { text: "Reels lideram interacoes (65,5%) e viraram motor de descoberta, creator e prova de experiencia." },
+    { text: "Linktree 7d com 94,3% de CTR mostra que o gargalo nao e clique na bio; foco em clareza de oferta e checkout Sympla." },
+    { text: "Base ainda e majoritariamente seguidora (83% views 30d); ultimos 7d melhoram descoberta para 21,9% nao seguidores." }
   ],
   performance: [
-    { content: "Reels Collab \"Creator Challenge\" (Ananda)", format: "Reels collab", reach: "6.018", interactions: "705", signal: "11.934 views · 530 curtidas · 41 coment. · 32% não-seguidores (descoberta)", decision: "Collab de creators puxa não-seguidores — bom para alcance novo." },
-    { content: "Reels \"Faltam 7 dias\"", format: "Reels", reach: "6.370", interactions: "804", signal: "13.838 views · 617 curtidas · 23 coment. · 71% seguidores", decision: "Boa tração de contagem regressiva — manter sequência até 03/07." },
-    { content: "Tipos de Ingressos (carrossel)", format: "Carrossel", reach: "4.443", interactions: "941", signal: "631 curtidas · 211 compart. · 50 salvos · 18 coment.", decision: "Boa tração (94% seguidores). Reforçar tipos de ingresso até o carrinho." },
-    { content: "Comunidade GoGamers", format: "Carrossel", reach: "—", interactions: "—", signal: "Cliques e respostas", decision: "Reforçar CTA se clique baixo." },
-    { content: "Você conhece a Go Game?", format: "Reels", reach: "—", interactions: "—", signal: "Retenção e compartilhamento", decision: "Se performar, virar série institucional." },
-    { content: "Lote promocional disponível", format: "Feed + Stories", reach: "—", interactions: "—", signal: "Cliques e DMs", decision: "FAQ e urgência se houver objeção." }
+    { content: "Cosplay/personagem - 09/07", format: "Reels", reach: "25,9 mil views", interactions: "2,3 mil", signal: "Top 30d por views e interacoes.", decision: "Transformar em serie: cosplay + experiencia + CTA de lote." },
+    { content: "Experiencia VR / evento - 07/07", format: "Reels", reach: "10,2 mil views", interactions: "580", signal: "Experiencia pratica gera prova de evento.", decision: "Reforcar com cortes curtos e CTA Sympla." },
+    { content: "Performer/palco - 11/07", format: "Reels", reach: "8,3 mil views", interactions: "570", signal: "Conteudo de palco performa bem perto da compra.", decision: "Usar como prova social e diversidade de programacao." },
+    { content: "Creator rosto / chamada humana - 05/07", format: "Reels", reach: "10,6 mil views", interactions: "254", signal: "Bom alcance, menor interacao.", decision: "Manter creator, mas com gancho e CTA mais direto." },
+    { content: "Tipos de Ingressos", format: "Carrossel/Reels", reach: "1,6 mil engaj.", interactions: "-", signal: "Servico de compra segue relevante.", decision: "Repostar em stories e fixar duvida de pacote/passaporte." },
+    { content: "Datas oficiais 2026", format: "Reels/arte", reach: "945 engaj.", interactions: "-", signal: "Servico institucional ainda gera consulta.", decision: "Manter como ativo de contexto para novos publicos." }
   ],
   audience: {
     updated: "junho",
@@ -2469,6 +2514,16 @@ function renderSales() {
       <strong>${escapeHtml(k.v)}</strong>
       <small>${escapeHtml(k.d)}</small>
     </div>`).join("");
+  const history = document.getElementById("salesHistory");
+  if (history) {
+    history.innerHTML = (s.history || []).map(item => `
+      <div class="history-item">
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${escapeHtml(item.value)}</strong>
+        <small>${escapeHtml(item.tickets || "")}</small>
+        <small>${escapeHtml(item.note || "")}</small>
+      </div>`).join("");
+  }
   const intro = document.getElementById("salesIntro");
   if (intro) intro.textContent = `Vendas do lote promocional (03–12/07) contra as metas de referência. Corte ${s.updated || ""}.`;
 }
