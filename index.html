@@ -1690,6 +1690,16 @@
             <span class="chip">O sistema voltou</span>
           </div>
         </div>
+        <div class="card">
+          <h3 class="card-title">Linha da transição do lote</h3>
+          <p class="muted" style="margin:0 0 14px">Evolução do corte Sympla durante a virada do lote e pós-lote imediato.</p>
+          <div class="history-grid" id="salesTransition"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Plataforma de creators</h3>
+          <p class="muted" style="margin:0 0 14px">Frente nova de distribuição, prova social e geração de conteúdo por comunidade.</p>
+          <div class="history-grid" id="creatorLaunch"></div>
+        </div>
       </div>
       <div class="card">
         <h3 class="card-title">Caminho do cliente — da reativação à venda</h3>
@@ -1789,24 +1799,33 @@ const STATUS_CLASS = {
 };
 
 const defaultData = {
-  updatedAt: "11/07/2026 20:08",
+  updatedAt: "13/07/2026 17:16",
   sales: {
-    updated: "11/07 20:07",
-    confirmed: "R$ 126.112,36",
-    confirmedNum: 126112,
-    tickets: "2.969",
-    repasse: "R$ 114.647,78 (90,91%)",
-    pending: "R$ 913,44 · 23 ingressos",
-    note: "Lote promocional 03-12/07 · fonte Sympla (prints 11/07)",
+    updated: "13/07 17:15",
+    confirmed: "R$ 163.439,68",
+    confirmedNum: 163439.68,
+    tickets: "3.723",
+    repasse: "R$ 148.581,65 (90,91%)",
+    pending: "R$ 1.944,58 · 37 ingressos",
+    note: "Transição de lote 12-13/07 · fonte Sympla (prints 13/07)",
     metas: [
       { label: "Meta 1", target: 140000 },
       { label: "Meta 2", target: 170000 },
       { label: "Meta 3 (objetivo)", target: 200000 }
     ],
     history: [
-      { label: "2026 atual", value: "R$ 126.112,36", tickets: "2.969 acessos", note: "Corte 11/07 20:07; lote promocional em andamento." },
+      { label: "2026 atual", value: "R$ 163.439,68", tickets: "3.723 acessos", note: "Corte 13/07 17:15; Meta 1 superada e Meta 2 quase atingida." },
+      { label: "Transição 11-13/07", value: "+R$ 37.327,32", tickets: "+754 acessos", note: "Crescimento desde o corte 11/07 20:07." },
       { label: "2025 fechado", value: "R$ 741.476,94", tickets: "9.055 acessos", note: "Historico Sympla; referencia de fechamento." },
       { label: "Historico GO GAME", value: "R$ 622.415,22", tickets: "6.464 acessos", note: "Print Sympla sem ano no titulo; usar como referencia secundaria." }
+    ],
+    transition: [
+      { label: "12/07 09:05", value: "R$ 129.238,12", tickets: "3.040 acessos", note: "Base do domingo; pendentes R$ 913,44 / 23 acessos." },
+      { label: "12/07 19:42", value: "R$ 141.107,56", tickets: "3.335 acessos", note: "Meta 1 cruzada durante o dia." },
+      { label: "12/07 22:05", value: "R$ 147.876,52", tickets: "3.502 acessos", note: "Aceleração no fim da janela do lote." },
+      { label: "13/07 07:32", value: "R$ 158.056,24", tickets: "3.673 acessos", note: "Virada forte após o fechamento do lote." },
+      { label: "13/07 17:15", value: "R$ 163.439,68", tickets: "3.723 acessos", note: "Último controle; R$ 6,56k abaixo da Meta 2." },
+      { label: "Hoje 13/07", value: "R$ 10.235,64", tickets: "84 itens", note: "Aba Hoje no app; usar como indicador, não como reconciliação final." }
     ]
   },
   agenda: [
@@ -1879,40 +1898,48 @@ const defaultData = {
     { text: "Atrações confirmadas só entram depois da abertura do lote promocional em julho." }
   ],
   perf: [
-    { label: "Seguidores", value: "28.794", note: "Total na conta · 11/07" },
-    { label: "Visualizacoes (30d)", value: "616.403", note: "83% seguidores · 17% nao seguidores" },
-    { label: "Contas alcancadas (30d)", value: "56.629", note: "Ultimos 30 dias" },
-    { label: "Interacoes (30d)", value: "6.843", note: "3.126 contas com engajamento" },
-    { label: "Visitas ao perfil (30d)", value: "5.282", note: "Atividade de perfil: 7.457" },
-    { label: "Toques em links (30d)", value: "2.130", note: "Toques em links externos" },
+    { label: "Seguidores", value: "28.919", note: "Total na conta · 13/07" },
+    { label: "Visualizacoes (30d)", value: "613.023", note: "81,1% seguidores · 18,9% nao seguidores" },
+    { label: "Contas alcancadas (30d)", value: "57.131", note: "Ultimos 30 dias" },
+    { label: "Atividade do perfil (30d)", value: "30.706", note: "Visitas, links e acoes no perfil" },
+    { label: "Visitas ao perfil (30d)", value: "22.379", note: "Intencao direta no perfil" },
+    { label: "Toques em links (30d)", value: "8.087", note: "Toques em links externos" },
     { label: "Link da bio - views (7d)", value: "2.139", note: "Linktree · 2.017 cliques · CTR 94,3%" },
     { label: "Link da bio - views (28d)", value: "7.528", note: "Linktree · 5.479 cliques · CTR 72,8%" },
-    { label: "Comunidade WhatsApp", value: "2,5k+", note: "Pre-venda + creators visiveis; base nao deduplicada" },
-    { label: "Atualizado em", value: "11/07", note: "IG Insights / Linktree / Sympla 11/07" }
+    { label: "Creators pré-aprovados", value: "100", note: "Plataforma de creators lançada em 13/07" },
+    { label: "Atualizado em", value: "13/07", note: "IG Insights / Linktree / Sympla 13/07" }
   ],
   perfFormats: [
-    { format: "Reels", views: "41,0", interactions: "65,5" },
-    { format: "Stories", views: "47,8", interactions: "23,6" },
-    { format: "Posts", views: "11,2", interactions: "10,8" }
+    { format: "Stories", views: "44,2", interactions: "23,6" },
+    { format: "Reels", views: "43,1", interactions: "65,5" },
+    { format: "Posts", views: "12,7", interactions: "10,8" }
   ],
   perfInsights: [
-    { text: "Stories lideram visualizacoes em 30d (47,8%) e devem carregar urgencia/CTA diario ate 12/07." },
-    { text: "Reels lideram interacoes (65,5%) e viraram motor de descoberta, creator e prova de experiencia." },
-    { text: "Linktree 7d com 94,3% de CTR mostra que o gargalo nao e clique na bio; foco em clareza de oferta e checkout Sympla." },
-    { text: "Base ainda e majoritariamente seguidora (83% views 30d); ultimos 7d melhoram descoberta para 21,9% nao seguidores." }
+    { text: "Transição do lote validou demanda: +R$ 37.327,32 e +754 acessos desde 11/07 20:07." },
+    { text: "Meta 1 foi superada; Meta 2 ficou a R$ 6.560,32 no corte 13/07 17:15." },
+    { text: "Creators viraram frente de distribuição: plataforma lançada com 100 pré-aprovados e desafio relâmpago gerando conteúdo." },
+    { text: "Linktree 7d com 94,3% de CTR mostra que o gargalo nao e clique na bio; foco agora e oferta, prova social e checkout." },
+    { text: "Base segue majoritariamente seguidora (81,1%), mas o desafio de creators deve aumentar descoberta fora da bolha." }
   ],
   performance: [
-    { content: "Cosplay/personagem - 09/07", format: "Reels", reach: "25,9 mil views", interactions: "2,3 mil", signal: "Top 30d por views e interacoes.", decision: "Transformar em serie: cosplay + experiencia + CTA de lote." },
-    { content: "Experiencia VR / evento - 07/07", format: "Reels", reach: "10,2 mil views", interactions: "580", signal: "Experiencia pratica gera prova de evento.", decision: "Reforcar com cortes curtos e CTA Sympla." },
-    { content: "Performer/palco - 11/07", format: "Reels", reach: "8,3 mil views", interactions: "570", signal: "Conteudo de palco performa bem perto da compra.", decision: "Usar como prova social e diversidade de programacao." },
-    { content: "Creator rosto / chamada humana - 05/07", format: "Reels", reach: "10,6 mil views", interactions: "254", signal: "Bom alcance, menor interacao.", decision: "Manter creator, mas com gancho e CTA mais direto." },
-    { content: "Tipos de Ingressos", format: "Carrossel/Reels", reach: "1,6 mil engaj.", interactions: "-", signal: "Servico de compra segue relevante.", decision: "Repostar em stories e fixar duvida de pacote/passaporte." },
-    { content: "Datas oficiais 2026", format: "Reels/arte", reach: "945 engaj.", interactions: "-", signal: "Servico institucional ainda gera consulta.", decision: "Manter como ativo de contexto para novos publicos." }
+    { content: "O sistema voltou / loading - 23/06", format: "Reels", reach: "38,5 mil views", interactions: "2,3 mil", signal: "Maior alcance recente e forte memória de marca.", decision: "Reativar como assinatura de campanha em cortes curtos." },
+    { content: "Tipos de ingressos - 27/06", format: "Reels/arte", reach: "37,3 mil views", interactions: "1,6 mil", signal: "Conteúdo de serviço também gera alcance.", decision: "Fixar duvidas de pacote/passaporte e repetir no pós-lote." },
+    { content: "Cosplay/personagem - 09/07", format: "Reels", reach: "27,9 mil views", interactions: "2,2 mil", signal: "Top por engajamento e ponte natural com creators.", decision: "Transformar em série: cosplay + experiência + CTA." },
+    { content: "Palco/experiência - 16/06", format: "Reels", reach: "24 mil views", interactions: "1,6 mil", signal: "Prova de evento e escala ajudam conversão.", decision: "Usar em retargeting orgânico e Stories com link." },
+    { content: "Datas oficiais 2026 - 24/06", format: "Reels/arte", reach: "20,7 mil views", interactions: "974", signal: "Serviço institucional ainda gera consulta.", decision: "Manter como ativo de contexto para novos públicos." },
+    { content: "Go Game Challenge Creator", format: "Creators", reach: "desafio ativo", interactions: "649", signal: "Primeiro sinal de tração da plataforma de creators.", decision: "Criar ranking por creator, CTA padrão e prazo de repost." }
   ],
+  creatorLaunch: {
+    status: "Lançada em 13/07",
+    preApproved: "100 creators pré-aprovados",
+    challenge: "Desafio relâmpago ativo",
+    signal: "Vários creators já produziram conteúdos no desafio.",
+    next: "Consolidar links, padronizar CTA, ranquear criativos e medir vendas/links por trilha."
+  },
   audience: {
-    updated: "junho",
+    updated: "13/07",
     country: "Brasil 98,2% (EUA 0,4% · Portugal 0,3%)",
-    bestTimes: "Seg · Ter · Sex, 18h–21h",
+    bestTimes: "Segunda: picos 12h, 15h e 9h; janela secundaria 6h/18h",
     gender: [{ label: "Homens", pct: "63,5" }, { label: "Mulheres", pct: "36,5" }],
     ages: [{ label: "25–34", pct: "40,4" }, { label: "18–24", pct: "34,3" }, { label: "35–44", pct: "13,2" }, { label: "13–17", pct: "7,3" }],
     cities: [{ label: "Goiânia", pct: "40,3" }, { label: "Aparecida de Goiânia", pct: "9,7" }, { label: "Anápolis", pct: "2,9" }, { label: "Senador Canedo", pct: "2,6" }]
@@ -2400,24 +2427,27 @@ function renderCountdown() {
 function renderExecutiveBrief() {
   const s = data.sales || {};
   const confirmed = Number(s.confirmedNum) || 0;
-  const meta1 = (s.metas || [])[0]?.target || 140000;
-  const missing = Math.max(0, meta1 - confirmed);
-  const missingText = missing.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const metas = s.metas || [];
+  const meta1 = metas[0]?.target || 140000;
+  const meta2 = metas[1]?.target || 170000;
+  const meta1Pct = meta1 ? Math.round(confirmed / meta1 * 100) : 0;
+  const meta2Gap = Math.max(0, meta2 - confirmed).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const creator = data.creatorLaunch || {};
   const items = [
     {
       label: "Status",
-      title: "Tração validada",
-      note: `${s.confirmed || "-"} confirmados e ${s.tickets || "-"} acessos no corte ${s.updated || "-"}.`
+      title: "Meta 1 superada",
+      note: `${s.confirmed || "-"} confirmados e ${s.tickets || "-"} acessos no corte ${s.updated || "-"} (${meta1Pct}% da Meta 1).`
     },
     {
       label: "Risco",
-      title: "Conversão, não alcance",
-      note: "Linktree e Instagram mostram intenção; gargalo provável é clareza de oferta, checkout e urgência."
+      title: "Pós-lote e pendências",
+      note: `${s.pending || "Pendências a reconciliar"}. Meta 2 está a ${meta2Gap}; fechar leitura antes de comunicar número final.`
     },
     {
       label: "Próxima decisão",
-      title: "Atualizar pós-lote",
-      note: `Reconciliar Sympla após 12/07. Faltavam ${missingText} para R$ 140k no último corte.`
+      title: "Creators em escala",
+      note: `${creator.preApproved || "Creators pré-aprovados"} + desafio relâmpago: padronizar CTA, prazo e ranking por performance.`
     }
   ];
   document.getElementById("executiveBrief").innerHTML = items.map(item => `
@@ -2450,12 +2480,12 @@ function renderOverview() {
   const confirmed = Number(s.confirmedNum) || 0;
   const meta1 = (s.metas || [])[0]?.target || 140000;
   const meta1Pct = meta1 ? Math.round(confirmed / meta1 * 100) : 0;
-  const linktree7d = (data.perf || []).find(item => item.label.includes("views (7d)"));
+  const linkClicks = (data.perf || []).find(item => item.label.includes("Toques em links"));
   const metrics = [
     { label: "Resultado confirmado", value: s.confirmed || "-", note: (s.tickets || "-") + " acessos - corte " + (s.updated || "-") },
     { label: "Meta 1", value: String(meta1Pct) + "%", note: "R$ 140k como primeira referência do lote" },
-    { label: "Link da bio", value: "94,3%", note: linktree7d ? linktree7d.note : "CTR Linktree nos ultimos 7 dias" },
-    { label: "Foco QSUP", value: "Pós-lote", note: "Reconciliar corte final e próximos anúncios" }
+    { label: "Links externos", value: linkClicks ? linkClicks.value : "8.087", note: linkClicks ? linkClicks.note : "Toques em links externos (30d)" },
+    { label: "Foco QSUP", value: "Creators", note: "Escalar CTA, ranking e prova social pós-lote" }
   ];
   document.getElementById("overviewMetrics").innerHTML = metrics.map(item => `
     <div class="card">
@@ -2803,6 +2833,31 @@ function renderSales() {
         <span>${escapeHtml(item.label)}</span>
         <strong>${escapeHtml(item.value)}</strong>
         <small>${escapeHtml(item.tickets || "")}</small>
+        <small>${escapeHtml(item.note || "")}</small>
+      </div>`).join("");
+  }
+  const transition = document.getElementById("salesTransition");
+  if (transition) {
+    transition.innerHTML = (s.transition || []).map(item => `
+      <div class="history-item">
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${escapeHtml(item.value)}</strong>
+        <small>${escapeHtml(item.tickets || "")}</small>
+        <small>${escapeHtml(item.note || "")}</small>
+      </div>`).join("");
+  }
+  const creator = document.getElementById("creatorLaunch");
+  if (creator) {
+    const c = data.creatorLaunch || {};
+    const items = [
+      { label: "Status", value: c.status || "Lançada", note: c.signal || "" },
+      { label: "Base", value: c.preApproved || "100 creators pré-aprovados", note: "Seleção pronta para ativação e acompanhamento." },
+      { label: "Ativação", value: c.challenge || "Desafio relâmpago ativo", note: c.next || "" }
+    ];
+    creator.innerHTML = items.map(item => `
+      <div class="history-item">
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${escapeHtml(item.value)}</strong>
         <small>${escapeHtml(item.note || "")}</small>
       </div>`).join("");
   }
