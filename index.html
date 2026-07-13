@@ -169,6 +169,11 @@
     display: flex;
   }
 
+  body:not(.team-mode) .internal-only,
+  body:not(.team-mode) #syncStatus {
+    display: none !important;
+  }
+
   .btn {
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -295,9 +300,12 @@
 
   .metric-value {
     margin-top: 9px;
-    font-family: "Nickel Wide", Arial, sans-serif;
-    font-size: clamp(24px, 2.4vw, 32px);
+    font-family: var(--font-body);
+    font-size: clamp(25px, 2.3vw, 34px);
+    font-weight: 850;
     line-height: 1.1;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
   }
 
@@ -310,6 +318,50 @@
 
   .command-center {
     margin: 14px 0;
+  }
+
+  .executive-brief {
+    margin: 14px 0;
+    border-color: rgba(85,255,103,.22);
+    background: linear-gradient(135deg, rgba(0,224,0,.07), rgba(8,217,255,.045));
+  }
+
+  .brief-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .brief-item {
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid rgba(168,164,215,.14);
+    border-radius: 14px;
+    background: rgba(255,255,255,.025);
+  }
+
+  .brief-item span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .brief-item strong {
+    display: block;
+    margin-top: 6px;
+    color: var(--text);
+    font-size: clamp(18px, 2vw, 26px);
+    line-height: 1.15;
+  }
+
+  .brief-item small {
+    display: block;
+    margin-top: 6px;
+    color: rgba(247,245,255,.7);
+    font-size: 13px;
+    line-height: 1.4;
   }
 
   .command-head {
@@ -981,6 +1033,7 @@
     .grid.cols-3,
     .grid.cols-2,
     .form-grid,
+    .brief-grid,
     .signal-grid,
     .shortcut-grid {
       grid-template-columns: 1fr;
@@ -1360,10 +1413,10 @@
 
   <nav class="nav" aria-label="Navegação principal">
     <button class="active" data-tab="overview">Resumo</button>
-    <button data-tab="agenda">Agenda</button>
-    <button data-tab="deliveries">Produção</button>
+    <button class="internal-only" data-tab="agenda">Agenda</button>
+    <button class="internal-only" data-tab="deliveries">Produção</button>
     <button data-tab="performance">Desempenho</button>
-    <button data-tab="files">Arquivos</button>
+    <button class="internal-only" data-tab="files">Arquivos</button>
     <button data-tab="strategy">Estratégia</button>
   </nav>
 
@@ -1376,8 +1429,18 @@
         </div>
       </div>
       <div class="countdown-strip" id="countdownStrip"></div>
+      <div class="card executive-brief">
+        <div class="command-head">
+          <div>
+            <h3 class="card-title">Leitura QSUP do momento</h3>
+            <p>Resumo executivo para cliente e decisores.</p>
+          </div>
+          <button class="btn ghost" type="button" data-copy-summary>Copiar resumo</button>
+        </div>
+        <div class="brief-grid" id="executiveBrief"></div>
+      </div>
       <div class="grid cols-4" id="overviewMetrics"></div>
-      <div class="card command-center">
+      <div class="card command-center internal-only">
         <div class="command-head">
           <div>
             <h3 class="card-title">Centro de comando</h3>
@@ -1387,7 +1450,7 @@
         </div>
         <div class="signal-grid" id="actionSignals"></div>
       </div>
-      <div class="card">
+      <div class="card internal-only">
         <h3 class="card-title">Ações rápidas</h3>
         <div class="shortcut-grid">
           <button class="shortcut-btn" type="button" data-go-tab="agenda" data-agenda-preset="today">
@@ -1408,11 +1471,11 @@
           </button>
         </div>
       </div>
-      <div class="card">
+      <div class="card internal-only">
         <h3 class="card-title" id="weekTitle">Esta semana</h3>
         <div id="weekSummary"></div>
       </div>
-      <div class="grid cols-2">
+      <div class="grid cols-2 internal-only">
         <div class="card">
           <h3 class="card-title">Próxima publicação</h3>
           <div id="nextDelivery"></div>
@@ -1935,9 +1998,13 @@ function mergeDashboardData(source = {}) {
   if (perfFreshnessValue(source) < perfFreshnessValue(base)) {
     merged.perf = base.perf;
     merged.perfFormats = base.perfFormats;
+    merged.perfInsights = base.perfInsights;
     merged.performance = base.performance;
     merged.audience = base.audience;
     merged.updatedAt = base.updatedAt;
+  }
+  if (!(source.perfInsights || []).some(item => String(item.text || "").includes("Linktree 7d"))) {
+    merged.perfInsights = base.perfInsights;
   }
   return merged;
 }
@@ -2237,6 +2304,26 @@ function renderActionSignals() {
 
 function buildExecutiveSummary() {
   const { today, overdue, nextSeven, decisions } = operationalSignals();
+  const teamOpen = teamMode || editing || Boolean(supabaseSession);
+  const s = data.sales || {};
+  if (!teamOpen) {
+    const meta1 = (s.metas || [])[0]?.target || 140000;
+    const confirmed = Number(s.confirmedNum) || 0;
+    const pct = meta1 ? Math.round(confirmed / meta1 * 100) : 0;
+    return [
+      "GO GAME 2026 - Leitura QSUP",
+      `Atualizacao: ${data.updatedAt}`,
+      "",
+      `Vendas confirmadas: ${s.confirmed || "-"}`,
+      `Ingressos/acessos: ${s.tickets || "-"}`,
+      `Meta 1: ${pct}% de R$ 140k`,
+      "",
+      "Diagnóstico: a campanha tem atenção e clique; o gargalo provável está em clareza de oferta, checkout e urgência.",
+      "Próxima decisão: reconciliar o corte final pós-lote e alinhar próximos anúncios.",
+      "",
+      `Painel: ${window.location.href}`
+    ].join("\n");
+  }
   const lines = [
     "GO GAME 2026 - Painel operacional",
     `Atualizacao: ${data.updatedAt}`,
@@ -2310,6 +2397,38 @@ function renderCountdown() {
   `).join("");
 }
 
+function renderExecutiveBrief() {
+  const s = data.sales || {};
+  const confirmed = Number(s.confirmedNum) || 0;
+  const meta1 = (s.metas || [])[0]?.target || 140000;
+  const missing = Math.max(0, meta1 - confirmed);
+  const missingText = missing.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const items = [
+    {
+      label: "Status",
+      title: "Tração validada",
+      note: `${s.confirmed || "-"} confirmados e ${s.tickets || "-"} acessos no corte ${s.updated || "-"}.`
+    },
+    {
+      label: "Risco",
+      title: "Conversão, não alcance",
+      note: "Linktree e Instagram mostram intenção; gargalo provável é clareza de oferta, checkout e urgência."
+    },
+    {
+      label: "Próxima decisão",
+      title: "Atualizar pós-lote",
+      note: `Reconciliar Sympla após 12/07. Faltavam ${missingText} para R$ 140k no último corte.`
+    }
+  ];
+  document.getElementById("executiveBrief").innerHTML = items.map(item => `
+    <div class="brief-item">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${escapeHtml(item.title)}</strong>
+      <small>${escapeHtml(item.note)}</small>
+    </div>
+  `).join("");
+}
+
 function renderOverview() {
   const agenda = data.agenda;
   const blockedAgenda = agenda.filter(item => item.status === "Bloqueado");
@@ -2325,12 +2444,18 @@ function renderOverview() {
     .filter(item => weekKeyOf(item) === current)
     .sort((a, b) => parseBRDate(a.date) - parseBRDate(b.date));
   const weekRange = weekLabel(current).replace("Semana de ", "");
+  renderExecutiveBrief();
 
+  const s = data.sales || {};
+  const confirmed = Number(s.confirmedNum) || 0;
+  const meta1 = (s.metas || [])[0]?.target || 140000;
+  const meta1Pct = meta1 ? Math.round(confirmed / meta1 * 100) : 0;
+  const linktree7d = (data.perf || []).find(item => item.label.includes("views (7d)"));
   const metrics = [
-    { label: "Próximo foco", value: next ? next.date : "—", note: next ? next.content : "Agenda vazia" },
-    { label: "Publicações esta semana", value: String(thisWeek.length), note: weekRange },
-    { label: "Publicadas", value: String(publishedAgenda.length), note: "Itens já marcados como publicados" },
-    { label: "Atenção", value: String(overdueAgenda.length + blockedAgenda.length + blockedDeliveries.length), note: "Atrasos e decisões pendentes" }
+    { label: "Resultado confirmado", value: s.confirmed || "-", note: (s.tickets || "-") + " acessos - corte " + (s.updated || "-") },
+    { label: "Meta 1", value: String(meta1Pct) + "%", note: "R$ 140k como primeira referência do lote" },
+    { label: "Link da bio", value: "94,3%", note: linktree7d ? linktree7d.note : "CTR Linktree nos ultimos 7 dias" },
+    { label: "Foco QSUP", value: "Pós-lote", note: "Reconciliar corte final e próximos anúncios" }
   ];
   document.getElementById("overviewMetrics").innerHTML = metrics.map(item => `
     <div class="card">
@@ -2454,11 +2579,15 @@ function switchTab(tabId) {
   const button = document.querySelector(`.nav button[data-tab="${tabId}"]`);
   const section = document.getElementById(tabId);
   if (!button || !section) return;
+  const teamOpen = teamMode || editing || Boolean(supabaseSession);
+  if (button.classList.contains("internal-only") && !teamOpen) tabId = "overview";
   document.querySelectorAll(".nav button").forEach(item => item.classList.remove("active"));
   document.querySelectorAll(".section").forEach(item => item.classList.remove("active"));
-  button.classList.add("active");
-  section.classList.add("active");
-  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  const safeButton = document.querySelector(`.nav button[data-tab="${tabId}"]`);
+  const safeSection = document.getElementById(tabId);
+  safeButton.classList.add("active");
+  safeSection.classList.add("active");
+  safeSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function renderAgenda() {
@@ -2684,6 +2813,9 @@ function renderSales() {
 function render() {
   document.body.classList.toggle("editing", editing);
   document.body.classList.toggle("team-mode", teamMode || editing || Boolean(supabaseSession));
+  const teamOpen = teamMode || editing || Boolean(supabaseSession);
+  const activeTab = document.querySelector(".nav button.active");
+  if (!teamOpen && activeTab?.classList.contains("internal-only")) switchTab("overview");
   document.getElementById("teamModeToggle").textContent = (teamMode || editing || supabaseSession) ? "Ocultar equipe" : "Área da equipe";
   document.getElementById("editToggle").textContent = editing ? "Desativar edição" : "Ativar edição";
   renderOverview();
